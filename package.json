@@ -1,0 +1,20 @@
+{
+  "name": "ts-jest-typed-paths",
+  "version": "1.0.0",
+  "description": "no more magic strings on jest.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "esbuild": "^0.24.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "ts-jest-typed-path": "file:."
+  }
+}
