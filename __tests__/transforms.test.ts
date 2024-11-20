@@ -7,6 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 describe("transformer", () => {
+  
   const getCodeWithoutSourceMapping = (
     fileName: string,
     tsJestTypedPathsOptions?: Record<string, unknown>
@@ -15,23 +16,23 @@ describe("transformer", () => {
       astTransformers: {
         before: [
           {
-            path: "<rootDir>/index.ts",
+            path: "<rootDir>/dist/index.js",
             options: tsJestTypedPathsOptions,
           },
         ],
       },
     };
     const tsJestTransformer = new TsJestTransformer(tsJestTransformerOptions);
-    const jestMockPath = path.resolve(__dirname, fileName);
-    const jestMockSource = fs.readFileSync(jestMockPath, "utf-8");
+    const codePath = path.resolve(__dirname,"transform-files", fileName);
+    const codeToTransform = fs.readFileSync(codePath, "utf-8");
 
     const tsJestTransformOptions: TsJestTransformOptions = {
       cacheFS: new Map(),
       config: {},
     } as TsJestTransformOptions;
     const result = tsJestTransformer.process(
-      jestMockSource,
-      jestMockPath, // todo - will want to use tsCompiler.configSet.isTestFile
+      codeToTransform,
+      codePath, // todo - will want to use tsCompiler.configSet.isTestFile
       tsJestTransformOptions
     );
     const code = result.code;
@@ -42,7 +43,6 @@ describe("transformer", () => {
 
   interface Test {
     name: string;
-    normalFileName: string;
     transformedFileName: string;
     options?: Record<string, unknown>;
   }
@@ -50,22 +50,37 @@ describe("transformer", () => {
   const tests: Test[] = [
     {
       name: "using transformToModuleName",
-      normalFileName: "jestmock.ts",
-      transformedFileName: "jestmock-transform.ts",
+      transformedFileName: "transformToModuleName",
     },
+  {
+      name: "using transformToModuleName renamed",
+      transformedFileName: "transformToModuleName-renamed",
+    },
+    {
+      name: "using jest method type argument",
+      transformedFileName: "jest-transform",
+    }
   ];
 
   it.each(tests)(
     "should work - $name",
-    ({ normalFileName, transformedFileName, options }) => {
-      const normalCode = getCodeWithoutSourceMapping(normalFileName, options);
+    ({ transformedFileName, options }) => {
       const transformedCode = getCodeWithoutSourceMapping(
-        transformedFileName,
+        `${transformedFileName}.ts`,
         options
       );
-
+      const normalCode = getCodeWithoutSourceMapping(`${transformedFileName}-normal.ts`, options);
       expect(normalCode).toEqual(transformedCode);
-      console.log(normalCode);
-    }
+    }   
   );
+
+  it("should error when using unsupported type argument - transformToModuleName", () => {
+    expect(() => getCodeWithoutSourceMapping("transformToModuleName-error.ts"))
+      .toThrow("Unsupported usage of type argument for transformToModuleName");
+  });
+
+  it("should error when using unsupported type argument - jest", () => {
+    expect(() => getCodeWithoutSourceMapping("jest-error.ts"))
+      .toThrow("Unsupported usage of type argument for jest.mock");
+  });
 });
