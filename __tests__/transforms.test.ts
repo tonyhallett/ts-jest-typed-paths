@@ -117,7 +117,7 @@ describe("transformer", () => {
       const path = generateTsPatchTsConfig();
       
 
-      childProcess.execSync(`npm run tspatch ${path}`);
+      childProcess.execSync(`npm run tspatch --project ${path}`);
     });
   })
 });
