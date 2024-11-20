@@ -93,31 +93,51 @@ describe("transformer", () => {
   });
 
   describe("ts-patch", () => {
+    let outPath:string;
+    let tsPatchTsConfigPath:string;
     const generateTsPatchTsConfig = () => {
+      const pathToTransformer = path.resolve(__dirname,"../dist/index.js");
       const tsPatchPlugin:PluginConfig = {
         import:"tsPatchFactory",
-        transform:packageName
+        //transform:packageName - todo - not working
+        transform:pathToTransformer
       }
       
+      // include is resolved relative to the directory containing the tsconfig.json file.
+      const transformFilesTsPatch = "transform-files/tspatch";
+      const includeFullPath = path.resolve(__dirname,`../__tests__/${transformFilesTsPatch}.ts`);
       const tsPatchTsConfig = {
         compilerOptions:{
           "outDir": "./tspatchout", 
           plugins:[
             tsPatchPlugin
-          ]
+          ],
+          esModuleInterop: true
         },
-        "include":["__tests__/transform-files/jest-transform.ts"]
+        "include":[includeFullPath]
       }
-      const tsPatchTsConfigPath = path.join(os.tmpdir(),"tsconfig.tspatch.json");
+      tsPatchTsConfigPath = path.join(os.tmpdir(),"tsconfig.tspatch.json");
+      outPath = path.join(os.tmpdir(),"tspatchout");
+      const transpiledPath = path.join(outPath,`${transformFilesTsPatch}.js`);
       fs.writeFileSync(tsPatchTsConfigPath, JSON.stringify(tsPatchTsConfig));
-      return tsPatchTsConfigPath;
+      return {
+        tsPatchTsConfigPath,
+        transpiledPath,
+      }
     }
     it("should work", () => {
-      // generate a tsconfig for ts-path
-      const path = generateTsPatchTsConfig();
-      
+      const {tsPatchTsConfigPath, transpiledPath} = generateTsPatchTsConfig();
 
-      childProcess.execSync(`npm run tspatch --project ${path}`);
+      const command = `npm run tspatch -- --project ${tsPatchTsConfigPath}`;
+      childProcess.spawnSync(command, {shell:true, stdio:"inherit"});
+
+      const transpiled = fs.readFileSync(transpiledPath, "utf-8");
+      expect(transpiled).toContain('aFn("../imported/exporting");');
     });
+
+    afterEach(() => {
+      fs.rmSync(tsPatchTsConfigPath);
+      fs.rmSync(outPath, {recursive:true});
+    })
   })
 });
