@@ -1,5 +1,7 @@
-import { TsCompilerInstance } from "ts-jest";
+import { TsCompilerInstance, TTypeScript } from "ts-jest";
+import { ProgramPattern } from "ts-patch";
 import {
+  Diagnostic,
   SourceFile,
   TransformationContext,
   TransformerFactory,
@@ -15,8 +17,9 @@ import {
 } from "./transformToModuleName-ast";
 
 export const name = "jest-typed-paths";
-export const version = 1;
+export const version = 2;
 
+// ts -jest
 export const factory = (
   tsCompiler: TsCompilerInstance,
   opts?: Record<string, unknown>
@@ -24,6 +27,18 @@ export const factory = (
   const configSet = tsCompiler.configSet;
   const ts = configSet.compilerModule;
 
+  return baseFactory(
+    ts,
+    (diagnostic) => configSet.raiseDiagnostics([diagnostic]),
+    opts ?? {}
+  );
+};
+
+const baseFactory = (
+  ts: TTypeScript,
+  raiseDiagnostic: (diagnostic: Diagnostic) => void,
+  config: Record<string, unknown>
+) => {
   const transform = (
     sourceFile: SourceFile,
     context: TransformationContext,
@@ -41,27 +56,22 @@ export const factory = (
               transformToModuleNameTypeArgument
             );
 
-            const raiseDiagnostic = (transformToModuleNameTypeInfo: {
+            const doRaiseDiagnostic = (transformToModuleNameTypeInfo: {
               start: number;
               length: number;
             }) => {
-              configSet.raiseDiagnostics(
-                [
-                  {
-                    file: sourceFile,
-                    category: ts.DiagnosticCategory.Error,
-                    code: 0, // todo
-                    messageText: `Unsupported usage of type argument for ${methodName}`,
-                    start: transformToModuleNameTypeInfo.start,
-                    length: transformToModuleNameTypeInfo.length,
-                  },
-                ],
-                sourceFile.fileName
-              );
+              raiseDiagnostic({
+                file: sourceFile,
+                category: ts.DiagnosticCategory.Error,
+                code: 0, // todo
+                messageText: `Unsupported usage of type argument for ${methodName}`,
+                start: transformToModuleNameTypeInfo.start,
+                length: transformToModuleNameTypeInfo.length,
+              });
             };
 
             if (!typeNameOrModuleName.supported) {
-              raiseDiagnostic(typeNameOrModuleName);
+              doRaiseDiagnostic(typeNameOrModuleName);
             } else {
               let moduleName: string | undefined;
               if (typeNameOrModuleName.isTypeName) {
@@ -74,8 +84,7 @@ export const factory = (
               if (moduleName !== undefined) {
                 return moduleName;
               } else {
-                // todo - different diagnostic
-                raiseDiagnostic(typeNameOrModuleName);
+                doRaiseDiagnostic(typeNameOrModuleName);
               }
             }
           };
@@ -128,8 +137,6 @@ export const factory = (
   };
 
   const transformerFactory: TransformerFactory<SourceFile> = (context) => {
-    //tsCompiler.configSet.isTestFile
-
     return (sourceFile) => {
       const importsInfo = getImportsInfo(ts, sourceFile);
       const transformFromJestTypeArguments = true;
@@ -145,6 +152,10 @@ export const factory = (
   return transformerFactory;
 };
 
+// ts-patch
+export const tsPatchFactory: ProgramPattern = (program, config, extras) => {
+  return baseFactory(extras.ts, (diag) => extras.addDiagnostic(diag), config);
+};
 export function transformToModuleName<T>(): string {
   throw new Error("");
 }

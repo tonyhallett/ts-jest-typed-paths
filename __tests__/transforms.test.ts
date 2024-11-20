@@ -5,6 +5,10 @@ import {
 } from "ts-jest";
 import * as fs from "fs";
 import * as path from "path";
+import * as childProcess from "child_process"
+import {PluginConfig} from "ts-patch"
+import {packageName} from "../src/package-name"
+import * as os from "os"
 
 describe("transformer", () => {
   
@@ -37,7 +41,7 @@ describe("transformer", () => {
     );
     const code = result.code;
     const sourceMappingIndex = code.indexOf("//# sourceMappingURL=");
-    //remove soource mapping
+    //remove source mapping
     return code.slice(0, sourceMappingIndex);
   };
 
@@ -59,6 +63,10 @@ describe("transformer", () => {
     {
       name: "using jest method type argument",
       transformedFileName: "jest-transform",
+    },
+    {
+      name: "should ignore jest named methods if not from jest",
+      transformedFileName: "not-jest-transform",
     }
   ];
 
@@ -83,4 +91,33 @@ describe("transformer", () => {
     expect(() => getCodeWithoutSourceMapping("jest-error.ts"))
       .toThrow("Unsupported usage of type argument for jest.mock");
   });
+
+  describe("ts-patch", () => {
+    const generateTsPatchTsConfig = () => {
+      const tsPatchPlugin:PluginConfig = {
+        import:"tsPatchFactory",
+        transform:packageName
+      }
+      
+      const tsPatchTsConfig = {
+        compilerOptions:{
+          "outDir": "./tspatchout", 
+          plugins:[
+            tsPatchPlugin
+          ]
+        },
+        "include":["__tests__/transform-files/jest-transform.ts"]
+      }
+      const tsPatchTsConfigPath = path.join(os.tmpdir(),"tsconfig.tspatch.json");
+      fs.writeFileSync(tsPatchTsConfigPath, JSON.stringify(tsPatchTsConfig));
+      return tsPatchTsConfigPath;
+    }
+    it("should work", () => {
+      // generate a tsconfig for ts-path
+      const path = generateTsPatchTsConfig();
+      
+
+      childProcess.execSync(`npm run tspatch ${path}`);
+    });
+  })
 });

@@ -9,7 +9,8 @@
     "pretest": "npm run build",
     "build": "tsc",
     "prebuild": "rimraf dist  && npm run create-package-name-export",
-    "create-package-name-export": "ts-node ./scripts/create-package-name-export.ts"
+    "create-package-name-export": "ts-node ./scripts/create-package-name-export.ts",
+    "tspatch": "tspc"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "ts-jest": "^29.2.5",
     "ts-jest-typed-paths": "file:.",
     "ts-node": "^10.9.2",
+    "ts-patch": "^3.2.1",
     "typescript": "^5.6.3"
   }
 }

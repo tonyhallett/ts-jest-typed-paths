@@ -24,7 +24,7 @@ export class ImportsInfo {
   }
 }
 
-function addImports(
+function getImports(
   ts: TTypeScript,
   importDeclaration: ImportDeclaration,
   moduleName: string,
@@ -90,7 +90,7 @@ export const getImportsInfo = (
             importsInfo.transformToModuleNameName = transformToModuleNameName;
           }
         } else {
-          addImports(ts, statement, moduleName, importsInfo);
+          getImports(ts, statement, moduleName, importsInfo);
         }
       }
     }
