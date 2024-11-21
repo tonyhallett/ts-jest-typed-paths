@@ -12,9 +12,10 @@ import { getImportsInfo, ImportsInfo } from "./getImportsInfo";
 import { getJestCallExpressionInfo } from "./jest-ast";
 import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
 import {
-  getTransformToModuleNameTypeArgument,
-  isTransformToModuleNameImport,
-} from "./transformToModuleName-ast";
+  getTransformToPathTypeArgument,
+  isTransformToPathImport,
+} from "./transformToPath-ast";
+import { getUnsupportedTypeArgumentDiagnostic } from "./diagnostics";
 
 export const name = "jest-typed-paths";
 export const version = 2;
@@ -48,26 +49,32 @@ const baseFactory = (
       const visitor: Visitor = (node) => {
         if (ts.isCallExpression(node)) {
           const getModuleName = (
-            transformToModuleNameTypeArgument: TypeNode,
+            typeArgument: TypeNode,
             methodName: string
           ) => {
             const typeNameOrModuleName = getTypeNameOrModuleName(
               ts,
-              transformToModuleNameTypeArgument
+              typeArgument
             );
 
-            const doRaiseDiagnostic = (transformToModuleNameTypeInfo: {
+            const doRaiseDiagnostic = (startLength: {
               start: number;
               length: number;
             }) => {
-              raiseDiagnostic({
-                file: sourceFile,
-                category: ts.DiagnosticCategory.Error,
-                code: 0, // todo
-                messageText: `Unsupported usage of type argument for ${methodName}`,
-                start: transformToModuleNameTypeInfo.start,
-                length: transformToModuleNameTypeInfo.length,
-              });
+              /* 
+                for built in diagonstics see typescript.js
+                var Diagnostics = { 
+                
+              */
+              raiseDiagnostic(
+                getUnsupportedTypeArgumentDiagnostic(
+                  ts,
+                  sourceFile,
+                  startLength.start,
+                  startLength.length,
+                  methodName
+                )
+              );
             };
 
             if (!typeNameOrModuleName.supported) {
@@ -88,17 +95,16 @@ const baseFactory = (
               }
             }
           };
-          const transformToModuleNameTypeArgument =
-            getTransformToModuleNameTypeArgument(
-              ts,
-              node,
-              importsInfo.transformToModuleNameName!
-            );
+          const transformToPathTypeArgument = getTransformToPathTypeArgument(
+            ts,
+            node,
+            importsInfo.transformToPathName!
+          );
 
-          if (transformToModuleNameTypeArgument) {
+          if (transformToPathTypeArgument) {
             const moduleName = getModuleName(
-              transformToModuleNameTypeArgument,
-              "transformToModuleName"
+              transformToPathTypeArgument,
+              transformToPath.name
             );
             if (moduleName) {
               return ts.factory.createStringLiteral(moduleName);
@@ -124,7 +130,7 @@ const baseFactory = (
             }
           }
         }
-        return isTransformToModuleNameImport(ts, node)
+        return isTransformToPathImport(ts, node)
           ? undefined
           : ts.visitEachChild(node, visitor, ctx);
       };
@@ -141,7 +147,7 @@ const baseFactory = (
       const importsInfo = getImportsInfo(ts, sourceFile);
       const transformFromJestTypeArguments = true;
       if (
-        importsInfo.transformToModuleNameName !== undefined ||
+        importsInfo.transformToPathName !== undefined ||
         transformFromJestTypeArguments
       ) {
         return transform(sourceFile, context, importsInfo);
@@ -156,6 +162,6 @@ const baseFactory = (
 export const tsPatchFactory: ProgramPattern = (program, config, extras) => {
   return baseFactory(extras.ts, (diag) => extras.addDiagnostic(diag), config);
 };
-export function transformToModuleName<T>(): string {
+export function transformToPath<T>(): string {
   throw new Error("");
 }

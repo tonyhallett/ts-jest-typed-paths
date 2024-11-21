@@ -18,7 +18,7 @@ interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
   supported: true;
 }
 
-// the generic in transformToModuleName<T> or jest.mock<T>
+// the generic in transformToPath<T> or jest.mock<T>
 export function getTypeNameOrModuleName(
   ts: TTypeScript,
   typeArgument: TypeNode

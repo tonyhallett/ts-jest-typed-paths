@@ -7,8 +7,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as childProcess from "child_process"
 import {PluginConfig} from "ts-patch"
-import {packageName} from "../src/package-name"
 import * as os from "os"
+import {unsupportedTypeArgumentDiagnosticCode} from "../src/diagnostics"
 
 describe("transformer", () => {
   
@@ -36,7 +36,7 @@ describe("transformer", () => {
     } as TsJestTransformOptions;
     const result = tsJestTransformer.process(
       codeToTransform,
-      codePath, // todo - will want to use tsCompiler.configSet.isTestFile
+      codePath,
       tsJestTransformOptions
     );
     const code = result.code;
@@ -53,12 +53,12 @@ describe("transformer", () => {
 
   const tests: Test[] = [
     {
-      name: "using transformToModuleName",
-      transformedFileName: "transformToModuleName",
+      name: "using transformToPath",
+      transformedFileName: "transformToPath",
     },
   {
-      name: "using transformToModuleName renamed",
-      transformedFileName: "transformToModuleName-renamed",
+      name: "using transformToPath renamed",
+      transformedFileName: "transformToPath-renamed",
     },
     {
       name: "using jest method type argument",
@@ -82,9 +82,9 @@ describe("transformer", () => {
     }   
   );
 
-  it("should error when using unsupported type argument - transformToModuleName", () => {
-    expect(() => getCodeWithoutSourceMapping("transformToModuleName-error.ts"))
-      .toThrow("Unsupported usage of type argument for transformToModuleName");
+  it("should error when using unsupported type argument - transformToPath", () => {
+    expect(() => getCodeWithoutSourceMapping("transformToPath-error.ts"))
+      .toThrow("Unsupported usage of type argument for transformToPath");
   });
 
   it("should error when using unsupported type argument - jest", () => {
@@ -95,7 +95,26 @@ describe("transformer", () => {
   describe("ts-patch", () => {
     let outPath:string;
     let tsPatchTsConfigPath:string;
-    const generateTsPatchTsConfig = () => {
+    const generateTsPatchTsConfig = (fileName:string) => {
+      /*
+        cannot use the module name as ts-patch will use the tsconfig.json file directory as a resolve base directory ( given that I use the --project flag)
+        in the patched ts.createProgram
+        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/ts/create-program.ts#L93
+        creates
+        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/plugin/plugin-creator.ts#L178
+        uses 
+        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/plugin/plugin.ts#L74
+        https://nodejs.org/api/modules.html#requireresolverequest-options
+      */
+
+      /*
+        to see the patch code. 
+        Can specify process.env.TSP_CACHE_DIR, 
+        or process.env.CACHE_DIR/ts-patch 
+        or looks up for a package.json then puts in node_modules/.cache/ts-patch 
+        or fallsback to ostmp/ts-patch
+        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/core/src/system/cache.ts#L36
+      */
       const pathToTransformer = path.resolve(__dirname,"../dist/index.js");
       const tsPatchPlugin:PluginConfig = {
         import:"tsPatchFactory",
@@ -104,7 +123,7 @@ describe("transformer", () => {
       }
       
       // include is resolved relative to the directory containing the tsconfig.json file.
-      const transformFilesTsPatch = "transform-files/tspatch";
+      const transformFilesTsPatch = `transform-files/${fileName}`;
       const includeFullPath = path.resolve(__dirname,`../__tests__/${transformFilesTsPatch}.ts`);
       const tsPatchTsConfig = {
         compilerOptions:{
@@ -126,7 +145,7 @@ describe("transformer", () => {
       }
     }
     it("should work", () => {
-      const {tsPatchTsConfigPath, transpiledPath} = generateTsPatchTsConfig();
+      const {tsPatchTsConfigPath, transpiledPath} = generateTsPatchTsConfig("tspatch");
 
       const command = `npm run tspatch -- --project ${tsPatchTsConfigPath}`;
       childProcess.spawnSync(command, {shell:true, stdio:"inherit"});
@@ -135,9 +154,24 @@ describe("transformer", () => {
       expect(transpiled).toContain('aFn("../imported/exporting");');
     });
 
+    it("should have diagnostic", () => {
+      const {tsPatchTsConfigPath} = generateTsPatchTsConfig("tspatch-diagnostic");
+
+      const command = `npm run tspatch -- --project ${tsPatchTsConfigPath}`;
+      
+      const buffer = childProcess.spawnSync(command, {shell:true});
+      const out = buffer.stdout.toString();
+
+      // ts-patch patches itself so can addDiagnostic wich would otherwise be unavailable
+      // https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/shared.ts#L25
+      // https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/core/src/patch/transformers/patch-emitter.ts#L54
+      expect(out).toContain(`(4,21): error TS${unsupportedTypeArgumentDiagnosticCode}: Unsupported usage of type argument for transformToPath`);
+    });
+
     afterEach(() => {
       fs.rmSync(tsPatchTsConfigPath);
       fs.rmSync(outPath, {recursive:true});
     })
   })
+
 });
