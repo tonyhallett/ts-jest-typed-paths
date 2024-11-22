@@ -7,13 +7,13 @@ export const getUnsupportedTypeArgumentDiagnostic = (
   sourceFile: SourceFile,
   start: number,
   length: number,
-  methodName: string
+  member: string
 ) => {
   return {
     file: sourceFile,
     category: ts.DiagnosticCategory.Error,
     code: unsupportedTypeArgumentDiagnosticCode,
-    messageText: `Unsupported usage of type argument for ${methodName}`,
+    messageText: `Unsupported usage of type argument for ${member}`,
     start,
     length,
   };

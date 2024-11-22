@@ -11,85 +11,120 @@ import * as os from "os"
 import {unsupportedTypeArgumentDiagnosticCode} from "../src/diagnostics"
 
 describe("transformer", () => {
-  
-  const getCodeWithoutSourceMapping = (
-    fileName: string,
-    tsJestTypedPathsOptions?: Record<string, unknown>
-  ) => {
-    const tsJestTransformerOptions: TsJestTransformerOptions = {
-      astTransformers: {
-        before: [
-          {
-            path: "<rootDir>/dist/index.js",
-            options: tsJestTypedPathsOptions,
-          },
-        ],
-      },
-    };
-    const tsJestTransformer = new TsJestTransformer(tsJestTransformerOptions);
-    const codePath = path.resolve(__dirname,"transform-files", fileName);
-    const codeToTransform = fs.readFileSync(codePath, "utf-8");
+  describe("ts-jest", () => {
+    const getCodeToTransform = (fileName: string) => {
+      const codePath = path.resolve(__dirname,"transform-files", fileName);
+      return { codeToTransform: fs.readFileSync(codePath, "utf-8"), codePath};;
+    }
+    const createCleanTsJestTransformer = (
+      withTransformer = true,
+      tsJestTypedPathsOptions?: Record<string, unknown>
+    ) => {
+      const tsJestTransformerOptions: TsJestTransformerOptions = {};
+      
+      if(withTransformer){
+        tsJestTransformerOptions.astTransformers = {
+          before: [
+            {
+              path: "<rootDir>/dist/index.js",
+              options: tsJestTypedPathsOptions,
+            },
+          ],
+        }
+      }
+      (TsJestTransformer as any)._cachedConfigSets = [];
+      return new TsJestTransformer(tsJestTransformerOptions);
+    }
 
-    const tsJestTransformOptions: TsJestTransformOptions = {
+    const getTsJestTransformOptions = () => ({
       cacheFS: new Map(),
       config: {},
-    } as TsJestTransformOptions;
-    const result = tsJestTransformer.process(
-      codeToTransform,
-      codePath,
-      tsJestTransformOptions
-    );
-    const code = result.code;
-    const sourceMappingIndex = code.indexOf("//# sourceMappingURL=");
-    //remove source mapping
-    return code.slice(0, sourceMappingIndex);
-  };
+    } as TsJestTransformOptions);
 
-  interface Test {
-    name: string;
-    transformedFileName: string;
-    options?: Record<string, unknown>;
-  }
+    const transformCode = (
+      fileName: string,
+      withTransformer = true,
+      tsJestTypedPathsOptions?: Record<string, unknown>
+    ) => {
+      const tsJestTransformer = createCleanTsJestTransformer(withTransformer, tsJestTypedPathsOptions);
 
-  const tests: Test[] = [
-    {
-      name: "using transformToPath",
-      transformedFileName: "transformToPath",
-    },
-  {
-      name: "using transformToPath renamed",
-      transformedFileName: "transformToPath-renamed",
-    },
-    {
-      name: "using jest method type argument",
-      transformedFileName: "jest-transform",
-    },
-    {
-      name: "should ignore jest named methods if not from jest",
-      transformedFileName: "not-jest-transform",
-    }
-  ];
+      const {codeToTransform, codePath} = getCodeToTransform(fileName);
 
-  it.each(tests)(
-    "should work - $name",
-    ({ transformedFileName, options }) => {
-      const transformedCode = getCodeWithoutSourceMapping(
-        `${transformedFileName}.ts`,
-        options
+      const result = tsJestTransformer.process(
+        codeToTransform,
+        codePath,
+        getTsJestTransformOptions()
       );
-      const normalCode = getCodeWithoutSourceMapping(`${transformedFileName}-normal.ts`, options);
-      expect(normalCode).toEqual(transformedCode);
-    }   
-  );
+      return result.code;
+    }
 
-  it("should error when using unsupported type argument - transformToPath", () => {
-    expect(() => getCodeWithoutSourceMapping("transformToPath-error.ts"))
-      .toThrow("Unsupported usage of type argument for transformToPath");
-  });
+    const removeSourceMapping = (code:string) => {
+      const sourceMappingIndex = code.indexOf("//# sourceMappingURL=");
+      return code.slice(0, sourceMappingIndex);
+    }
+    
+    const getCodeWithoutSourceMapping = (
+      fileName: string,
+      withTransformer = true,
+      tsJestTypedPathsOptions?: Record<string, unknown>
+    ) => {
+      const code = transformCode(fileName, withTransformer, tsJestTypedPathsOptions);
+      return removeSourceMapping(code);
+    };
 
-  it("should error when using unsupported type argument - jest", () => {
-    expect(() => getCodeWithoutSourceMapping("jest-error.ts"))
-      .toThrow("Unsupported usage of type argument for jest.mock");
+    interface Test {
+      name: string;
+      transformedFileName: string;
+      options?: Record<string, unknown>;
+    }
+
+    const tests: Test[] = [
+      {
+        name: "using transformToPath",
+        transformedFileName: "transformToPath",
+      },
+    {
+        name: "using transformToPath renamed",
+        transformedFileName: "transformToPath-renamed",
+      },
+      {
+        name: "using jest method type argument",
+        transformedFileName: "jest-transform",
+      },
+      {
+        name: "should ignore jest named methods if not from jest",
+        transformedFileName: "not-jest-transform",
+      }
+    ];
+
+    it.each(tests)(
+      "should work - $name",
+      ({ transformedFileName, options }) => {
+        const transformedCode = getCodeWithoutSourceMapping(
+          `${transformedFileName}.ts`,
+          true,
+          options
+        );
+        const normalCode = getCodeWithoutSourceMapping(`${transformedFileName}-normal.ts`,false);
+        expect(normalCode).toEqual(transformedCode);
+      }   
+    );
+
+    it("should error when using unsupported type argument - transformToPath", () => {
+      expect(() => getCodeWithoutSourceMapping("transformToPath-error.ts"))
+        .toThrow("Unsupported usage of type argument for transformToPath");
+    });
+
+    it("should error when using unsupported type argument - jest", () => {
+      expect(() => getCodeWithoutSourceMapping("jest-error.ts"))
+        .toThrow("Unsupported usage of type argument for jest.mock");
+    });
+
+    it("should error with warning when jest method without type argument or transformToPath ", () => {
+      // because is currently a warning...
+      expect(() => getCodeWithoutSourceMapping("jest-no-type-arguments.ts"))
+        .toThrow("jest.mock is not providing a type argument for transformation to moduleName argument");
+    })
   });
 
   describe("ts-patch", () => {

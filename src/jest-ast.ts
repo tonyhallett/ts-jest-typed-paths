@@ -1,5 +1,10 @@
 import { TTypeScript } from "ts-jest";
-import { CallExpression, PropertyAccessExpression, TypeNode } from "typescript";
+import {
+  CallExpression,
+  Expression,
+  PropertyAccessExpression,
+  TypeNode,
+} from "typescript";
 
 const jestPropertyIdentifiers = [
   "doMock",
@@ -45,20 +50,25 @@ const hasJestRootPropertyAccessExpression = (
 };
 
 interface JestCallExpressionInfo {
-  typeArgument: TypeNode;
+  typeArgument: TypeNode | undefined;
   methodName: string;
+  firstArgument: Expression;
+  start: number;
+  length: number;
 }
 
 export const getJestCallExpressionInfo = (
   ts: TTypeScript,
   callExpression: CallExpression
 ): JestCallExpressionInfo | undefined => {
-  if (callExpression.typeArguments?.length !== 1) {
+  const callArguments = callExpression.arguments;
+  const numTypeArguments = callExpression.typeArguments
+    ? callExpression.typeArguments.length
+    : 0;
+  if (numTypeArguments > 1 || callArguments.length === 0) {
     return;
   }
-  const typeArgument = callExpression.typeArguments[0];
   const expression = callExpression.expression;
-  let methodName: string | undefined;
   if (ts.isPropertyAccessExpression(expression)) {
     if (
       !(
@@ -68,9 +78,17 @@ export const getJestCallExpressionInfo = (
     ) {
       return undefined;
     }
-    methodName = expression.name.text;
+    const methodName = expression.name.text;
     if (hasJestRootPropertyAccessExpression(ts, expression)) {
-      return { typeArgument, methodName };
+      const end = callExpression.end;
+      const start = expression.name.getStart();
+      return {
+        typeArgument: callExpression.typeArguments?.[0],
+        methodName,
+        firstArgument: callArguments[0],
+        start,
+        length: end - start,
+      };
     }
   }
 };
