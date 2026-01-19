@@ -1,10 +1,8 @@
 import { TTypeScript } from "ts-jest";
 import { ImportDeclaration, SourceFile } from "typescript";
 import { getTypeAliasModuleName } from "./helpers";
-import { transformToPath } from ".";
 import { packageName } from "./package-name";
-
-const transformToPathFunctionName = transformToPath.name;
+import { getTransformToPathFunctionName } from "./transformToPath-ast";
 
 export interface ImportInfo {
   moduleName: string;
@@ -18,9 +16,10 @@ export class ImportsInfo {
   }
   transformToPathName: string | undefined;
 
-  getModuleName(x: string) {
-    return this.imports.find((importInfo) => importInfo.imports.includes(x))
-      ?.moduleName;
+  getModuleName($import: string) {
+    return this.imports.find((importInfo) =>
+      importInfo.imports.includes($import),
+    )?.moduleName;
   }
 }
 
@@ -28,14 +27,14 @@ function getImports(
   ts: TTypeScript,
   importDeclaration: ImportDeclaration,
   moduleName: string,
-  importsInfo: ImportsInfo
+  importsInfo: ImportsInfo,
 ) {
   if (importDeclaration.importClause?.namedBindings) {
     if (ts.isNamedImports(importDeclaration.importClause.namedBindings)) {
       const imports = importDeclaration.importClause.namedBindings.elements.map(
         (element) => {
           return element.name.getText();
-        }
+        },
       );
       importsInfo.add({
         imports,
@@ -58,25 +57,9 @@ function getImports(
   }
 }
 
-const getTransformToPathFunctionName = (
-  ts: TTypeScript,
-  statement: ImportDeclaration
-) => {
-  const namedBindings = statement.importClause?.namedBindings;
-  if (namedBindings && ts.isNamedImports(namedBindings)) {
-    const importSpecifier = namedBindings.elements.find((element) => {
-      const compare = element.propertyName ?? element.name;
-      return compare.text === transformToPathFunctionName;
-    });
-    if (importSpecifier) {
-      return importSpecifier.name.text;
-    }
-  }
-};
-
 export const getImportsInfo = (
   ts: TTypeScript,
-  sourceFile: SourceFile
+  sourceFile: SourceFile,
 ): ImportsInfo => {
   return sourceFile.statements.reduce((importsInfo, statement) => {
     if (ts.isImportDeclaration(statement)) {
@@ -86,7 +69,7 @@ export const getImportsInfo = (
         if (moduleName === packageName) {
           const transformToPathName = getTransformToPathFunctionName(
             ts,
-            statement
+            statement,
           );
           if (transformToPathName) {
             importsInfo.transformToPathName = transformToPathName;
@@ -96,6 +79,7 @@ export const getImportsInfo = (
         }
       }
     }
+
     if (ts.isTypeAliasDeclaration(statement)) {
       const moduleName = getTypeAliasModuleName(ts, statement.type);
       if (moduleName !== undefined) {

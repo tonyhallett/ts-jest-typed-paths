@@ -9,122 +9,314 @@ import * as childProcess from "child_process"
 import {PluginConfig} from "ts-patch"
 import * as os from "os"
 import {unsupportedTypeArgumentDiagnosticCode} from "../src/diagnostics"
+import {jestMissingTypeArgumentDiagnosticCode} from "../src/jestFactory"
+import { mkdtempSync } from "fs";
+import pkg from "../package.json";
+import { spawnSync } from "child_process";
+import { toThrowTsErrorMatcher } from "./toThrowTsErrorMatcher";
+
+const expectExtendMap = {
+  "toThrowTsError": toThrowTsErrorMatcher,
+} satisfies jest.ExpectExtendMap;
+expect.extend(expectExtendMap);
+const extendedExpect = expect as jest.ExtendedExpect<typeof expectExtendMap>;
 
 describe("transformer", () => {
   describe("ts-jest", () => {
-    const getCodeToTransform = (fileName: string) => {
-      const codePath = path.resolve(__dirname,"transform-files", fileName);
-      return { codeToTransform: fs.readFileSync(codePath, "utf-8"), codePath};;
-    }
-    const createCleanTsJestTransformer = (
-      withTransformer = true,
-      tsJestTypedPathsOptions?: Record<string, unknown>
-    ) => {
-      const tsJestTransformerOptions: TsJestTransformerOptions = {};
-      
-      if(withTransformer){
-        tsJestTransformerOptions.astTransformers = {
-          before: [
-            {
-              path: "<rootDir>/dist/index.js",
-              options: tsJestTypedPathsOptions,
-            },
-          ],
+      let testDirectory:string;
+      beforeEach(() => {
+        testDirectory = mkdtempSync(path.join(os.tmpdir(), "typedpathstest-"));
+        createPackageJson();
+        createExportingFile();
+        installTarball();
+      });
+
+      function createPackageJson(){
+          const packageJsonContent: Record<string, any> = {
+            name: "tmp-proj",
+            version: "1.0.0",
+          };
+          createFile( JSON.stringify(packageJsonContent, null, 2), "package.json",);
+      }
+
+      function createExportingFile(){
+
+        const code = `
+interface Thing{}
+export const thing: Thing = {};
+export class AClass {}
+export type ExportedType = {};
+export default class ExportDefault {};
+`
+        createFile(code, "exporting.ts");
+      }
+
+      function createFile(contents:string, fileName:string){
+        const filePath = path.join(testDirectory,fileName);
+        fs.writeFileSync(filePath, contents);
+        return filePath;
+      }
+
+      function installTarball() {
+          const tarball = path.join(__dirname,"..", `${pkg.name}-${pkg.version}.tgz`);
+          // Install the packed tarball into the temp project
+          const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+          const install = spawnSync(npmCmd, ["i", tarball], {
+            cwd: testDirectory,
+            encoding: "utf8",
+            shell: process.platform === "win32",
+          });
+          if (install.error) {
+            throw install.error;
+          }
+          expect(install.status).toBe(0);
+      }
+
+      afterEach(() => {
+        fs.rmSync(testDirectory, {recursive:true});
+      });
+
+      describe("transformToPath", () => {
+        it("should error when using unsupported type argument - transformToPath", () => {
+          const code = `import { transformToPath } from "ts-jest-typed-paths";
+          jest.mock(transformToPath<boolean>());`;
+          tsErrorTest(code, "Unsupported usage of type argument for transformToPath",[unsupportedTypeArgumentDiagnosticCode]);
+        });
+
+        it("should work with import { ExportedType } - transformToPath<ExportedType>", () => {
+          transformToPathTest("ExportedType", `import { ExportedType } from "./exporting";`);
+        })
+
+        it("should work with default exports ", () => {
+          transformToPathTest("DefaultExport", `import DefaultExport from "./exporting";`);
+        })
+
+        it("should work with import * as Ns - transformToPath<typeof Ns>", () => {
+          transformToPathTest("typeof Ns", `import * as Ns from "./exporting";`);
+        })
+
+        it("should work with type alias to import", () => {
+          transformToPathTest("Alias",`type Alias = import("./exporting").ExportedType;`);
+        })
+
+        it(`should work with <import("../imported/exporting").ExportedType>`, () => {
+          transformToPathTest(`import("./exporting").ExportedType`);
+        })
+
+        function transformToPathTest(typeParam:string, importLine = ""){
+          const createCode = (toTransform:boolean) => {
+            const noOpArgument = toTransform ? `transformToPath<${typeParam}>()` : `"./exporting"`;
+            return `import {transformToPath} from "ts-jest-typed-paths";
+            ${importLine}
+
+            const noop = (_:string) => {};
+            const path = noop(${noOpArgument});
+            `;
+
+          }
+
+          transformTestExpected(createCode(true),createCode(false));
         }
+      })
+
+      describe("jest transform", () => {
+        // todo test that this applied to chaining
+        it("should not transform non jest mock methods", () => {
+          const code = `
+          const notJest = {
+              mock<T>(arg1:string, arg2: T){}
+          }
+          notJest.mock<string>('module', 'module');
+          `;
+          expect(doTransform(code)).toContain("notJest.mock('module', 'module')");
+        });
+        
+        describe("should transform jest methods", () => {
+          /*
+            from jest-ast.ts
+
+            const jestPropertyIdentifiers = [
+              "doMock",
+              "mock",
+              "unstable_mockModule",
+              "setMock",
+              "createMockFromModule",
+              "requireActual", 
+              "requireMock",
+              "genMockFromModule",
+            ];
+          */
+
+          it("should transform jest.mock from type argument import", () => {
+            transformJestMethodTest("mock");
+          });
+
+          it("should transform jest.requireActual from type argument import", () => {
+            transformJestMethodTest("requireActual", "const actual = ");
+          });
+
+          it("should transform jest.requireMock from type argument import", () => {
+            transformJestMethodTest("requireMock", "const mock = ");
+          });
+
+          it("should transform jest.doMock from type argument import", () => {
+            transformJestMethodTest("doMock");
+          });
+
+          it("should transform jest.genMockFromModule from type argument import", () => {
+            transformJestMethodTest("genMockFromModule", "const genMocked = ");
+          });
+          
+          it("should transform jest.createMockFromModule from type argument import", () => {
+            transformJestMethodTest("createMockFromModule", "const createMocked = ");
+          });
+
+          it("should transform jest.unstable_mockModule from type argument import", () => {
+            const toTransformCode = `//@ts-ignore
+    ${getJestPlaceholderMethodPrefix("unstable_mockModule")}, () => {
+        return {
+            thing:{},
+            AClass: class {},
+        };
+    })`;
+            transformPlaceholderTest(toTransformCode);
+          });
+
+        it("should transform jest call chain methods from type argument import", () => {
+          const code = `jest.mock${typeofImportGenericParameter}("placeholder").mock${typeofImportGenericParameter}("placeholder")`;
+          transformPlaceholderTest(code);
+        });
+
+        it("should transform nested jest methods from type argument import", () => {
+            const code = `
+    describe("transformer", () => {
+        it("should work", () => {
+            jest.doMock${typeofImportGenericParameter}("placeholder");
+            const moreCode = "";
+        });
+    });`
+            transformPlaceholderTest(code);
+        });
+        });
+
+        describe("errors", () => {
+          it("should error for unsupported type argument", () => {
+            tsErrorTest(`jest.mock<boolean>("");`, "Unsupported usage of type argument for jest.mock",[unsupportedTypeArgumentDiagnosticCode]);
+          })
+
+          it("should error with warning when jest method without type argument or transformToPath ", () => {
+            tsErrorTest(`jest.mock("");`, "jest.mock is not providing a type argument for transformation to moduleName argument", [jestMissingTypeArgumentDiagnosticCode]);
+          })
+        });
+
+        it("should transform non generic jest methods when using transformToPath", () => {
+          const code = `
+          import {transformToPath} from "ts-jest-typed-paths";
+          //@ts-ignore
+          jest.dontMock(transformToPath${typeofImportGenericParameter}());`;
+
+          const expected = `
+          import {transformToPath} from "ts-jest-typed-paths";
+          //@ts-ignore
+          jest.dontMock("./exporting");`;
+
+          transformTestExpected(code, expected);
+        }); 
+
+        it("should transform non generic jest methods when using transformToPath alias", () => {
+          const code = `
+          import {transformToPath as t} from "ts-jest-typed-paths";
+          //@ts-ignore
+          jest.dontMock(t${typeofImportGenericParameter}());`;
+
+          const expected = `
+          import {transformToPath} from "ts-jest-typed-paths";
+          //@ts-ignore
+          jest.dontMock("./exporting");`;
+
+          transformTestExpected(code, expected);
+        }); 
+      });
+
+      const typeofImportGenericParameter = `<typeof import("./exporting")>`
+
+      function transformJestMethodTest(mockMethodName:string, prefix = ""){
+        const toTransformCode = `${getJestPlaceholderMethodPrefix(mockMethodName, prefix)});`;
+        transformPlaceholderTest(toTransformCode);
       }
-      (TsJestTransformer as any)._cachedConfigSets = [];
-      return new TsJestTransformer(tsJestTransformerOptions);
-    }
 
-    const getTsJestTransformOptions = () => ({
-      cacheFS: new Map(),
-      config: {},
-    } as TsJestTransformOptions);
-
-    const transformCode = (
-      fileName: string,
-      withTransformer = true,
-      tsJestTypedPathsOptions?: Record<string, unknown>
-    ) => {
-      const tsJestTransformer = createCleanTsJestTransformer(withTransformer, tsJestTypedPathsOptions);
-
-      const {codeToTransform, codePath} = getCodeToTransform(fileName);
-
-      const result = tsJestTransformer.process(
-        codeToTransform,
-        codePath,
-        getTsJestTransformOptions()
-      );
-      return result.code;
-    }
-
-    const removeSourceMapping = (code:string) => {
-      const sourceMappingIndex = code.indexOf("//# sourceMappingURL=");
-      return code.slice(0, sourceMappingIndex);
-    }
-    
-    const getCodeWithoutSourceMapping = (
-      fileName: string,
-      withTransformer = true,
-      tsJestTypedPathsOptions?: Record<string, unknown>
-    ) => {
-      const code = transformCode(fileName, withTransformer, tsJestTypedPathsOptions);
-      return removeSourceMapping(code);
-    };
-
-    interface Test {
-      name: string;
-      transformedFileName: string;
-      options?: Record<string, unknown>;
-    }
-
-    const tests: Test[] = [
-      {
-        name: "using transformToPath",
-        transformedFileName: "transformToPath",
-      },
-    {
-        name: "using transformToPath renamed",
-        transformedFileName: "transformToPath-renamed",
-      },
-      {
-        name: "using jest method type argument",
-        transformedFileName: "jest-transform",
-      },
-      {
-        name: "should ignore jest named methods if not from jest",
-        transformedFileName: "not-jest-transform",
+      function getJestPlaceholderMethodPrefix(mockMethodName:string, prefix = ""){
+        return `${prefix}jest.${mockMethodName}${typeofImportGenericParameter}("placeholder"`;
       }
-    ];
 
-    it.each(tests)(
-      "should work - $name",
-      ({ transformedFileName, options }) => {
-        const transformedCode = getCodeWithoutSourceMapping(
-          `${transformedFileName}.ts`,
-          true,
-          options
+      function transformTestExpected(toTransformCode:string, expectedTransformedCode:string){
+        const toTransformPath = createFile(toTransformCode, "toTransform.ts");
+
+        const expectedPath = createFile(expectedTransformedCode, "expectedTransformed.ts");
+        
+        expect(transformWithoutSourceMapping(toTransformCode, toTransformPath)).toEqual(
+          transformWithoutSourceMapping(expectedTransformedCode, expectedPath)
         );
-        const normalCode = getCodeWithoutSourceMapping(`${transformedFileName}-normal.ts`,false);
-        expect(normalCode).toEqual(transformedCode);
-      }   
-    );
+      }
 
-    it("should error when using unsupported type argument - transformToPath", () => {
-      expect(() => getCodeWithoutSourceMapping("transformToPath-error.ts"))
-        .toThrow("Unsupported usage of type argument for transformToPath");
-    });
 
-    it("should error when using unsupported type argument - jest", () => {
-      expect(() => getCodeWithoutSourceMapping("jest-error.ts"))
-        .toThrow("Unsupported usage of type argument for jest.mock");
-    });
 
-    it("should error with warning when jest method without type argument or transformToPath ", () => {
-      // because is currently a warning...
-      expect(() => getCodeWithoutSourceMapping("jest-no-type-arguments.ts"))
-        .toThrow("jest.mock is not providing a type argument for transformation to moduleName argument");
-    })
+      function errorTest(code:string, errorMessage:string){
+        expect(() => doTransform(code)).toThrow(errorMessage);
+      }
+
+      function tsErrorTest(code:string, errorMessage:string, diagnosticCodes:number[]){
+        // https://github.com/kulshekhar/ts-jest/blob/main/src/utils/ts-error.ts
+        extendedExpect(() => doTransform(code)).toThrowTsError(errorMessage, diagnosticCodes);
+      }
+
+      function doTransform(code:string){
+        const toTransformPath = createFile(code, "toTransform.ts");
+        return transformWithoutSourceMapping(code, toTransformPath);
+      }
+
+      function transformWithoutSourceMapping(code:string, filePath:string){
+          const tsJestTransformer = createCleanTsJestTransformer();
+          const tsJestTransformOptions = {
+            cacheFS: new Map(),
+            config: {},
+          } as TsJestTransformOptions;
+
+          const result = tsJestTransformer.process(code, filePath, tsJestTransformOptions);
+          return removeSourceMapping(result.code);
+
+          function removeSourceMapping(code:string){
+            const sourceMappingIndex = code.indexOf("//# sourceMappingURL=");
+            return code.slice(0, sourceMappingIndex);
+          }
+
+          function createCleanTsJestTransformer(){
+            const tsJestTransformerOptions: TsJestTransformerOptions = {
+              astTransformers:{
+                before: [
+                  {
+                    path: "<rootDir>/dist/index.js",
+                  },
+                ],
+              }
+            };
+          
+            (TsJestTransformer as any)._cachedConfigSets = [];
+            return new TsJestTransformer(tsJestTransformerOptions);
+          }
+      }
+
+      function transformPlaceholderTest(toTransformCode:string){
+        transformTestExpected(toTransformCode, replaceWithImportPath(toTransformCode));
+      }
+
+      function replaceWithImportPath(code:string){
+        return replacePlaceholderWithFilePath(code, "./exporting");
+      }
+
+      function replacePlaceholderWithFilePath(code:string, filePath:string){
+        return code.replace("placeholder", filePath);
+      }
   });
 
   describe("ts-patch", () => {
@@ -179,6 +371,7 @@ describe("transformer", () => {
         transpiledPath,
       }
     }
+
     it("should work", () => {
       const {tsPatchTsConfigPath, transpiledPath} = generateTsPatchTsConfig("tspatch");
 

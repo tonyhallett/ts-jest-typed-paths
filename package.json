@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "pretest": "npm run build",
+    "pretest": "npm run build && npm pack",
     "build": "tsc",
     "prebuild": "rimraf dist  && npm run create-package-name-export",
     "create-package-name-export": "ts-node ./scripts/create-package-name-export.ts",

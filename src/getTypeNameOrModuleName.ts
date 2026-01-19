@@ -21,7 +21,7 @@ interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
 // the generic in transformToPath<T> or jest.mock<T>
 export function getTypeNameOrModuleName(
   ts: TTypeScript,
-  typeArgument: TypeNode
+  typeArgument: TypeNode,
 ): TypeNameOrModuleName | UnsupportedTypeNameOrModuleNameBase {
   const start = typeArgument.getStart();
   const length = typeArgument.getEnd() - start;
@@ -53,6 +53,7 @@ export function getTypeNameOrModuleName(
       supported: true,
     };
   }
+
   return {
     start,
     length,

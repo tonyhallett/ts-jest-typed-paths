@@ -1,0 +1,28 @@
+import { TTypeScript } from "ts-jest";
+import {
+  Diagnostic,
+  Expression,
+  SourceFile,
+  TransformationContext,
+  TypeNode,
+  Node,
+} from "typescript";
+
+export type RaiseDiagnostic = (diagnostic: Diagnostic) => void;
+export type GetModuleNameFromTypeArgument = (
+  typeArgument: TypeNode,
+  member: string,
+) => string | undefined;
+export type IsTransformToPathCallExpression = (
+  expression: Expression,
+) => boolean;
+export type AdditionalTransform = (node: Node) => Node | undefined;
+
+export type AdditionalTransformFactory = (
+  sourceFile: SourceFile,
+  context: TransformationContext,
+  ts: TTypeScript,
+  getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument,
+  isTransformToPathCallExpression: IsTransformToPathCallExpression,
+  raiseDiagnostic: RaiseDiagnostic,
+) => AdditionalTransform;

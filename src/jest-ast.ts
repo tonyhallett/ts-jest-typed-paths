@@ -6,20 +6,27 @@ import {
   TypeNode,
 } from "typescript";
 
+/*
+  jest types from either
+  https://github.com/jestjs/jest/blob/main/packages/jest-environment/src/index.ts
+  https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/jest/index.d.ts
+*/
 const jestPropertyIdentifiers = [
   "doMock",
   "mock",
   "unstable_mockModule",
-  "setMock",
+  "setMock", // generic in definitely typed
   "createMockFromModule",
   "requireActual",
   "requireMock",
+  // https://jestjs.io/docs/upgrading-to-jest30#jestgenmockfrommodule-removed
+  // deprecated - use createMockFromModule
   "genMockFromModule",
 ];
 
 const isRootJestPropertyAccessExpression = (
   ts: TTypeScript,
-  propertyAccessExpression: PropertyAccessExpression
+  propertyAccessExpression: PropertyAccessExpression,
 ) => {
   if (ts.isIdentifier(propertyAccessExpression.expression)) {
     return propertyAccessExpression.expression.text === "jest";
@@ -28,7 +35,7 @@ const isRootJestPropertyAccessExpression = (
 
 const hasJestRootPropertyAccessExpression = (
   ts: TTypeScript,
-  propertyAccessExpression: PropertyAccessExpression
+  propertyAccessExpression: PropertyAccessExpression,
 ) => {
   if (!ts.isIdentifier(propertyAccessExpression.name)) {
     return false;
@@ -39,17 +46,17 @@ const hasJestRootPropertyAccessExpression = (
   if (
     ts.isCallExpression(propertyAccessExpression.expression) &&
     ts.isPropertyAccessExpression(
-      propertyAccessExpression.expression.expression
+      propertyAccessExpression.expression.expression,
     )
   ) {
     return hasJestRootPropertyAccessExpression(
       ts,
-      propertyAccessExpression.expression.expression
+      propertyAccessExpression.expression.expression,
     );
   }
 };
 
-interface JestCallExpressionInfo {
+export interface JestCallExpressionInfo {
   typeArgument: TypeNode | undefined;
   methodName: string;
   firstArgument: Expression;
@@ -59,7 +66,7 @@ interface JestCallExpressionInfo {
 
 export const getJestCallExpressionInfo = (
   ts: TTypeScript,
-  callExpression: CallExpression
+  callExpression: CallExpression,
 ): JestCallExpressionInfo | undefined => {
   const callArguments = callExpression.arguments;
   const numTypeArguments = callExpression.typeArguments
