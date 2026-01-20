@@ -1,11 +1,9 @@
-import { TTypeScript } from "ts-jest";
 import ts, {
   SourceFile,
   TransformationContext,
   Visitor,
   TransformerFactory,
 } from "typescript";
-import { transformToPath } from "./transformToPath";
 import {
   AdditionalTransform,
   AdditionalTransformFactory,
@@ -19,6 +17,7 @@ import {
   tryGetTransformToPathTypeArgument,
   isTransformToPathImport,
 } from "./transformToPath-ast";
+import { TTypeScript } from "./ts";
 
 const tryReplaceTransformToPathWithModuleName = (
   ts: TTypeScript,
@@ -34,7 +33,7 @@ const tryReplaceTransformToPathWithModuleName = (
   if (transformToPathTypeArgument) {
     const moduleName = getModuleNameFromTypeArgument(
       transformToPathTypeArgument,
-      transformToPath.name,
+      transformToPathName!,
     );
 
     if (moduleName) {

@@ -1,9 +1,7 @@
-import { TTypeScript } from "ts-jest";
 import { CallExpression, ImportDeclaration, Node } from "typescript";
 import { packageName } from "./package-name";
 import { transformToPath } from "./transformToPath";
-
-const transformToPathFunctionName = transformToPath.name;
+import { TTypeScript } from "./ts";
 
 export const getTransformToPathFunctionName = (
   ts: TTypeScript,
@@ -13,7 +11,7 @@ export const getTransformToPathFunctionName = (
   if (namedBindings && ts.isNamedImports(namedBindings)) {
     const importSpecifier = namedBindings.elements.find((element) => {
       const compare = element.propertyName ?? element.name;
-      return compare.text === transformToPathFunctionName;
+      return compare.text === transformToPath.name;
     });
     if (importSpecifier) {
       return importSpecifier.name.text;

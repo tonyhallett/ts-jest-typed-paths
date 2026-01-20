@@ -1,8 +1,8 @@
-import { TTypeScript } from "ts-jest";
 import { ImportDeclaration, SourceFile } from "typescript";
 import { getTypeAliasModuleName } from "./helpers";
 import { packageName } from "./package-name";
 import { getTransformToPathFunctionName } from "./transformToPath-ast";
+import { TTypeScript } from "./ts";
 
 export interface ImportInfo {
   moduleName: string;

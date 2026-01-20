@@ -1,10 +1,10 @@
-import { TTypeScript } from "ts-jest";
 import {
   CallExpression,
   Expression,
   PropertyAccessExpression,
   TypeNode,
 } from "typescript";
+import { TTypeScript } from "./ts";
 
 /*
   jest types from either

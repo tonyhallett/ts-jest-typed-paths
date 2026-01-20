@@ -1,5 +1,5 @@
 import { SourceFile } from "typescript";
-import { TTypeScript } from "ts-jest";
+import { TTypeScript } from "./ts";
 
 export const unsupportedTypeArgumentDiagnosticCode = 10000;
 export const getUnsupportedTypeArgumentDiagnostic = (
@@ -7,7 +7,7 @@ export const getUnsupportedTypeArgumentDiagnostic = (
   sourceFile: SourceFile,
   start: number,
   length: number,
-  member: string
+  member: string,
 ) => {
   return {
     file: sourceFile,

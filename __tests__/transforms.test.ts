@@ -13,69 +13,88 @@ import {jestMissingTypeArgumentDiagnosticCode} from "../src/jestFactory"
 import { mkdtempSync } from "fs";
 import pkg from "../package.json";
 import { spawnSync } from "child_process";
-import { toThrowTsErrorMatcher } from "./toThrowTsErrorMatcher";
-
-const expectExtendMap = {
-  "toThrowTsError": toThrowTsErrorMatcher,
-} satisfies jest.ExpectExtendMap;
-expect.extend(expectExtendMap);
-const extendedExpect = expect as jest.ExtendedExpect<typeof expectExtendMap>;
+import extendedExpect from "./extendedExpect";
+import {tsPatchFactory} from "../src/index"
+import {packageName} from "../src/package-name"
 
 describe("transformer", () => {
-  describe("ts-jest", () => {
-      let testDirectory:string;
-      beforeEach(() => {
-        testDirectory = mkdtempSync(path.join(os.tmpdir(), "typedpathstest-"));
-        createPackageJson();
-        createExportingFile();
-        installTarball();
-      });
+  let testDirectory:string;
+  beforeEach(() => {
+    createTempDependentProject();
+  });
 
-      function createPackageJson(){
-          const packageJsonContent: Record<string, any> = {
-            name: "tmp-proj",
-            version: "1.0.0",
-          };
-          createFile( JSON.stringify(packageJsonContent, null, 2), "package.json",);
-      }
+  afterEach(() => {
+    fs.rmSync(testDirectory, {recursive:true});
+  });
 
-      function createExportingFile(){
+  function createTempDependentProject(){
+    testDirectory = mkdtempSync(path.join(os.tmpdir(), "typedpathstest-"));
+    createPackageJson();
+    createExportingFile();
+    installDevDependencies();
+    installTarball();
 
-        const code = `
+    function createPackageJson(){
+      const packageJsonContent: Record<string, any> = {
+        name: "tmp-proj",
+        version: "1.0.0",
+        scripts:{
+          "tspatch":"tspc"
+        },
+        devDependencies:{
+          "ts-patch": "^3.2.1",
+          "typescript": "^5.6.3"
+        }
+      };
+      createFile( JSON.stringify(packageJsonContent, null, 2), "package.json",);
+    }
+
+    function createExportingFile(){
+
+      const code = `
 interface Thing{}
 export const thing: Thing = {};
 export class AClass {}
 export type ExportedType = {};
 export default class ExportDefault {};
 `
-        createFile(code, "exporting.ts");
-      }
+      createFile(code, "exporting.ts");
+    }
 
-      function createFile(contents:string, fileName:string){
-        const filePath = path.join(testDirectory,fileName);
-        fs.writeFileSync(filePath, contents);
-        return filePath;
-      }
+    function installDevDependencies() {
+      npmInstall();
+    }
 
-      function installTarball() {
-          const tarball = path.join(__dirname,"..", `${pkg.name}-${pkg.version}.tgz`);
-          // Install the packed tarball into the temp project
-          const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-          const install = spawnSync(npmCmd, ["i", tarball], {
-            cwd: testDirectory,
-            encoding: "utf8",
-            shell: process.platform === "win32",
-          });
-          if (install.error) {
-            throw install.error;
-          }
-          expect(install.status).toBe(0);
-      }
+    function installTarball() {
+        const tarball = path.join(__dirname,"..", `${pkg.name}-${pkg.version}.tgz`);
+        npmInstall(tarball);
+    }
 
-      afterEach(() => {
-        fs.rmSync(testDirectory, {recursive:true});
-      });
+    function npmInstall(arg?:string){
+        const args = ["i"];
+        if(arg){
+          args.push(arg);
+        }
+        const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+        const install = spawnSync(npmCmd, args, {
+          cwd: testDirectory,
+          encoding: "utf8",
+          shell: process.platform === "win32",
+        });
+        if (install.error) {
+          throw install.error;
+        }
+        expect(install.status).toBe(0);
+    }
+  }
 
+  function createFile(contents:string, fileName:string){
+    const filePath = path.join(testDirectory,fileName);
+    fs.writeFileSync(filePath, contents);
+    return filePath;
+  }
+
+  describe("ts-jest", () => {
       describe("transformToPath", () => {
         it("should error when using unsupported type argument - transformToPath", () => {
           const code = `import { transformToPath } from "ts-jest-typed-paths";
@@ -320,86 +339,58 @@ export default class ExportDefault {};
   });
 
   describe("ts-patch", () => {
-    let outPath:string;
-    let tsPatchTsConfigPath:string;
-    const generateTsPatchTsConfig = (fileName:string) => {
-      /*
-        cannot use the module name as ts-patch will use the tsconfig.json file directory as a resolve base directory ( given that I use the --project flag)
-        in the patched ts.createProgram
-        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/ts/create-program.ts#L93
-        creates
-        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/plugin/plugin-creator.ts#L178
-        uses 
-        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/plugin/plugin.ts#L74
-        https://nodejs.org/api/modules.html#requireresolverequest-options
-      */
-
-      /*
-        to see the patch code. 
-        Can specify process.env.TSP_CACHE_DIR, 
-        or process.env.CACHE_DIR/ts-patch 
-        or looks up for a package.json then puts in node_modules/.cache/ts-patch 
-        or fallsback to ostmp/ts-patch
-        https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/core/src/system/cache.ts#L36
-      */
-      const pathToTransformer = path.resolve(__dirname,"../dist/index.js");
-      const tsPatchPlugin:PluginConfig = {
-        import:"tsPatchFactory",
-        //transform:packageName - todo - not working
-        transform:pathToTransformer
-      }
-      
-      // include is resolved relative to the directory containing the tsconfig.json file.
-      const transformFilesTsPatch = `transform-files/${fileName}`;
-      const includeFullPath = path.resolve(__dirname,`../__tests__/${transformFilesTsPatch}.ts`);
-      const tsPatchTsConfig = {
-        compilerOptions:{
-          "outDir": "./tspatchout", 
-          plugins:[
-            tsPatchPlugin
-          ],
-          esModuleInterop: true
-        },
-        "include":[includeFullPath]
-      }
-      tsPatchTsConfigPath = path.join(os.tmpdir(),"tsconfig.tspatch.json");
-      outPath = path.join(os.tmpdir(),"tspatchout");
-      const transpiledPath = path.join(outPath,`${transformFilesTsPatch}.js`);
-      fs.writeFileSync(tsPatchTsConfigPath, JSON.stringify(tsPatchTsConfig));
-      return {
-        tsPatchTsConfigPath,
-        transpiledPath,
-      }
-    }
-
     it("should work", () => {
-      const {tsPatchTsConfigPath, transpiledPath} = generateTsPatchTsConfig("tspatch");
+      const code = `import { transformToPath } from "ts-jest-typed-paths";
+		const aFn = (path:string) => {};
+aFn(transformToPath<typeof import("./exporting")>());`
+      const {transpiled} = tsPatchTest(code);
 
-      const command = `npm run tspatch -- --project ${tsPatchTsConfigPath}`;
-      childProcess.spawnSync(command, {shell:true, stdio:"inherit"});
-
-      const transpiled = fs.readFileSync(transpiledPath, "utf-8");
-      expect(transpiled).toContain('aFn("../imported/exporting");');
+      expect(transpiled).toContain('aFn("./exporting");');
     });
 
     it("should have diagnostic", () => {
-      const {tsPatchTsConfigPath} = generateTsPatchTsConfig("tspatch-diagnostic");
-
-      const command = `npm run tspatch -- --project ${tsPatchTsConfigPath}`;
+      const errorCode = `import { transformToPath } from "ts-jest-typed-paths";
+      const aFn = (path:string) => {};
       
-      const buffer = childProcess.spawnSync(command, {shell:true});
-      const out = buffer.stdout.toString();
+      aFn(transformToPath<string>());`;
 
-      // ts-patch patches itself so can addDiagnostic wich would otherwise be unavailable
-      // https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/patch/src/shared.ts#L25
-      // https://github.com/nonara/ts-patch/blob/78e972731369eea8afedacc2f7334244c8168356/projects/core/src/patch/transformers/patch-emitter.ts#L54
-      expect(out).toContain(`(4,21): error TS${unsupportedTypeArgumentDiagnosticCode}: Unsupported usage of type argument for transformToPath`);
+      const {processOut} = tsPatchTest(errorCode);
+
+      expect(processOut).toContain(`(4,27): error TS${unsupportedTypeArgumentDiagnosticCode}: Unsupported usage of type argument for transformToPath`);
     });
 
-    afterEach(() => {
-      fs.rmSync(tsPatchTsConfigPath);
-      fs.rmSync(outPath, {recursive:true});
-    })
-  })
+    function tsPatchTest(code:string):{transpiled:string, processOut:string}  {
+      const toTransformPath = createFile(code, "toTransform.ts");
+      const tsConfigPath = writeTsConfig();
 
+      const command = `npm run tspatch -- --project ${tsConfigPath}`;
+      const buffer = spawnSync(command, {shell:true, cwd: testDirectory, encoding: "utf-8"});
+      const processOut = buffer.stdout.toString();
+
+      const transpiledPath = path.join(testDirectory,"tspatchout","toTransform.js");
+      const transpiled = fs.readFileSync(transpiledPath, "utf-8");
+      return {transpiled, processOut};
+
+      function writeTsConfig(){
+        const tsPatchPlugin:PluginConfig = {
+          import:tsPatchFactory.name,
+          transform:packageName
+        }
+        const tsPatchTsConfig = {
+          compilerOptions:{
+            "outDir": "./tspatchout", 
+            plugins:[
+              tsPatchPlugin
+            ],
+            target: "ES2019",
+            lib: ["ES2019"],
+            esModuleInterop: true,
+            moduleResolution: "node",
+          },
+          "include":[toTransformPath]
+        }
+        return createFile(JSON.stringify(tsPatchTsConfig), "tsconfig.tspatch.json");
+      }
+    }
+  })
 });

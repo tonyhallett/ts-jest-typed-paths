@@ -1,6 +1,6 @@
-import { TTypeScript } from "ts-jest";
 import { TypeNode } from "typescript";
 import { getTypeAliasModuleName } from "./helpers";
+import { TTypeScript } from "./ts";
 
 interface TypeNameOrModuleNameBase {
   start: number;

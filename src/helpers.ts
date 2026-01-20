@@ -1,5 +1,5 @@
-import { TTypeScript } from "ts-jest";
 import { TypeNode } from "typescript";
+import { TTypeScript } from "./ts";
 
 const replaceQuotes = (input: string) =>
   input.replace("'", "").replace('"', "");

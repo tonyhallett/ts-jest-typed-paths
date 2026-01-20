@@ -1,4 +1,8 @@
 export const toThrowTsErrorMatcher = (received: () => void, diagnosticMessage: string, diagnosticCodes: number[]) => {
+  /*
+    internal to ts-jest
+    https://github.com/kulshekhar/ts-jest/blob/main/src/utils/ts-error.ts
+  */
   interface TSError extends Error {
     name: "TSError";
     diagnosticText: string;

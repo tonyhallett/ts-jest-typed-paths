@@ -1,4 +1,3 @@
-import { TTypeScript } from "ts-jest";
 import {
   Diagnostic,
   Expression,
@@ -7,6 +6,7 @@ import {
   TypeNode,
   Node,
 } from "typescript";
+import { TTypeScript } from "./ts";
 
 export type RaiseDiagnostic = (diagnostic: Diagnostic) => void;
 export type GetModuleNameFromTypeArgument = (
