@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/transform-to-path" },
+    { "path": "packages/jest-transform-to-path" },
+    { "path": "packages/ts-jest-typed-module-name" },
+    { "path": "packages/ts-patch-jest-typed-module-name" }
+  ]
+}

@@ -1,7 +1,9 @@
-import { AdditionalTransformFactory } from "./AdditionalTransformFactory";
+import {
+  AdditionalTransformFactory,
+  transformToPathFactory,
+} from "transform-to-path";
 import { getJestCallExpressionInfo, JestCallExpressionInfo } from "./jest-ast";
-import ts, { CallExpression, Diagnostic } from "typescript";
-import { transformToPathFactory } from "./transformToPathFactory";
+import { CallExpression, Diagnostic } from "typescript";
 import { TTypeScript } from "./ts";
 
 const updateJestMethodCallWithPath = (

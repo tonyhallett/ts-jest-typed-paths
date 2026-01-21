@@ -1,0 +1,19 @@
+{
+  "name": "jest-transform-to-path",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "transform-to-path": "1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "keywords": [],
+  "author": "Tony Hallett",
+  "license": "ISC",
+  "description": ""
+}

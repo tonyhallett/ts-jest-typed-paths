@@ -1,1 +1,0 @@
-export const packageName = "ts-jest-typed-paths";

@@ -1,0 +1,24 @@
+{
+  "name": "transform-to-path",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "pretest": "npm run create-package-name-export",
+    "test": "jest",
+    "create-package-name-export": "ts-node ./scripts/create-package-name-export.ts"
+  },
+  "devDependencies": {
+    "@ts-morph/bootstrap": "^0.28.1",
+    "ts-node": "^10.9.2",
+    "ts-transformer-testing-library": "^1.0.0-alpha.7",
+    "typescript": "^5.6.3"
+  },
+  "keywords": [],
+  "author": "Tony Hallett",
+  "license": "ISC",
+  "description": ""
+}

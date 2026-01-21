@@ -1,27 +1,17 @@
 {
-  "name": "ts-jest-typed-paths",
+  "name": "transform-to-path-workspace",
   "version": "1.0.0",
-  "description": "no more magic strings on jest.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "transforming generic parameter imported type to string path",
+  "private": true,
   "scripts": {
-    "test": "jest",
-    "pretest": "npm run build && npm pack",
-    "build": "tsc",
-    "prebuild": "rimraf dist  && npm run create-package-name-export",
-    "create-package-name-export": "ts-node ./scripts/create-package-name-export.ts"
+    "build": "tsc -build tsconfig.build.json",
+    "test": "npm run test --workspaces"
   },
-  "author": "",
+  "author": "Tony Hallett",
   "license": "ISC",
-  "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "esbuild": "^0.24.0",
-    "jest": "^29.7.0",
-    "rimraf": "^6.0.1",
-    "ts-jest": "^29.2.5",
-    "ts-jest-typed-paths": "file:.",
-    "ts-node": "^10.9.2",
-    "ts-patch": "^3.3.0",
-    "typescript": "^5.6.3"
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
   }
 }
