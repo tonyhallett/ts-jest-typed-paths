@@ -5,7 +5,6 @@ import {
 } from "ts-jest";
 import * as fs from "fs";
 import * as path from "path";
-import * as childProcess from "child_process"
 import {PluginConfig} from "ts-patch"
 import * as os from "os"
 import {unsupportedTypeArgumentDiagnosticCode} from "../src/diagnostics"
@@ -278,12 +277,6 @@ export default class ExportDefault {};
         );
       }
 
-
-
-      function errorTest(code:string, errorMessage:string){
-        expect(() => doTransform(code)).toThrow(errorMessage);
-      }
-
       function tsErrorTest(code:string, errorMessage:string, diagnosticCodes:number[]){
         // https://github.com/kulshekhar/ts-jest/blob/main/src/utils/ts-error.ts
         extendedExpect(() => doTransform(code)).toThrowTsError(errorMessage, diagnosticCodes);
@@ -300,6 +293,7 @@ export default class ExportDefault {};
             cacheFS: new Map(),
             config: {},
           } as TsJestTransformOptions;
+
 
           const result = tsJestTransformer.process(code, filePath, tsJestTransformOptions);
           return removeSourceMapping(result.code);

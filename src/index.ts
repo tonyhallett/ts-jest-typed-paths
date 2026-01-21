@@ -1,5 +1,5 @@
-import { TsCompilerInstance } from "ts-jest";
-import { ProgramPattern } from "ts-patch";
+import type { TsCompilerInstance } from "ts-jest";
+import type { ProgramPattern } from "ts-patch";
 import { createJestFactory } from "./jestFactory";
 import { transformToPathFactory } from "./transformToPathFactory";
 import { transformToPath } from "./transformToPath";
