@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ts-jest": "^29.2.5",
-    "jest-transform-to-path": "1.0.0",
+    "jest-typed-module-name": "1.0.0",
     "transform-to-path": "1.0.0"
   },
   "devDependencies": {

@@ -12,7 +12,7 @@ describe("transformer", () => {
   let tarballDir: string;
   const packagesInstallOrder = [
     "transform-to-path",
-    "jest-transform-to-path",
+    "jest-typed-module-name",
     "ts-patch-jest-typed-module-name",
   ];
   beforeAll(() => {

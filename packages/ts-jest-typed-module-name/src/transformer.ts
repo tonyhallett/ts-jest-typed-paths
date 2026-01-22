@@ -1,5 +1,5 @@
 import type { AstTransformerDesc, TsCompilerInstance } from "ts-jest";
-import { createJestFactory } from "jest-transform-to-path";
+import { createJestFactory } from "jest-typed-module-name";
 
 // currently not using the opts parameter of the factory function
 const transformerDescription: AstTransformerDesc = {

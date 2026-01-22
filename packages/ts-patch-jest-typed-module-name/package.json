@@ -21,7 +21,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "jest-transform-to-path": "1.0.0",
+    "jest-typed-module-name": "1.0.0",
     "ts-patch": "^3.3.0",
     "transform-to-path": "1.0.0"
   },

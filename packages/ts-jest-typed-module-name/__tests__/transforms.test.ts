@@ -2,7 +2,7 @@ import { TsJestTransformer, TsJestTransformerOptions, TsJestTransformOptions } f
 import * as fs from "fs";
 import * as path from "path";
 import { unsupportedTypeArgumentDiagnosticCode } from "../../transform-to-path/src/diagnostics";
-import { jestMissingTypeArgumentDiagnosticCode } from "../../jest-transform-to-path/src/index";
+import { jestMissingTypeArgumentDiagnosticCode } from "../../jest-typed-module-name/src/index";
 import extendedExpect from "./extendedExpect";
 import { packageName } from "../../transform-to-path/src/package-name";
 import { createTempDependentProject, TempDependentProject } from "test-utils";

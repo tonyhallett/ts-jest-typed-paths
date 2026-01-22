@@ -1,5 +1,5 @@
 import type { ProgramPattern } from "ts-patch";
-import { createJestFactory } from "jest-transform-to-path";
+import { createJestFactory } from "jest-typed-module-name";
 
 const tsPatchFactory: ProgramPattern = (program, config, extras) => {
   const jestFactory = createJestFactory();
