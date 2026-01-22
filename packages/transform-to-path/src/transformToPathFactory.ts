@@ -13,10 +13,7 @@ import {
 import { getUnsupportedTypeArgumentDiagnostic } from "./diagnostics";
 import { ImportsInfo, getImportsInfo } from "./getImportsInfo";
 import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
-import {
-  tryGetTransformToPathTypeArgument,
-  isTransformToPathImport,
-} from "./transformToPath-ast";
+import { tryGetTransformToPathTypeArgument } from "./transformToPath-ast";
 import { TTypeScript } from "./ts";
 
 const tryReplaceTransformToPathWithModuleName = (
@@ -48,6 +45,7 @@ export const transformToPathFactory = (
   ts: TTypeScript,
   raiseDiagnostic: RaiseDiagnostic,
   additionalTransformFactory?: AdditionalTransformFactory,
+  moduleNameIfExportsTransformToPath?: string,
 ) => {
   const transform = (
     sourceFile: SourceFile,
@@ -135,9 +133,7 @@ export const transformToPathFactory = (
           node = additionalTransformedNode;
         }
 
-        return isTransformToPathImport(ts, node)
-          ? undefined
-          : ts.visitEachChild(node, visitor, ctx);
+        return ts.visitEachChild(node, visitor, ctx);
       };
 
       return visitor;
@@ -150,7 +146,11 @@ export const transformToPathFactory = (
 
   const transformerFactory: TransformerFactory<SourceFile> = (context) => {
     return (sourceFile) => {
-      const importsInfo = getImportsInfo(ts, sourceFile);
+      const importsInfo = getImportsInfo(
+        ts,
+        sourceFile,
+        moduleNameIfExportsTransformToPath,
+      );
       if (
         importsInfo.transformToPathName !== undefined ||
         additionalTransformFactory !== undefined

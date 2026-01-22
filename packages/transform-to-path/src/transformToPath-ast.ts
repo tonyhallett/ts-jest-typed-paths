@@ -1,5 +1,4 @@
 import { CallExpression, ImportDeclaration, Node } from "typescript";
-import { packageName } from "./package-name";
 import { transformToPath } from "./transformToPath";
 import { TTypeScript } from "./ts";
 
@@ -7,14 +6,20 @@ export const getTransformToPathFunctionName = (
   ts: TTypeScript,
   statement: ImportDeclaration,
 ) => {
-  const namedBindings = statement.importClause?.namedBindings;
-  if (namedBindings && ts.isNamedImports(namedBindings)) {
-    const importSpecifier = namedBindings.elements.find((element) => {
-      const compare = element.propertyName ?? element.name;
-      return compare.text === transformToPath.name;
-    });
-    if (importSpecifier) {
-      return importSpecifier.name.text;
+  if (statement.importClause) {
+    const namedBindings = statement.importClause.namedBindings;
+    if (namedBindings) {
+      if (ts.isNamedImports(namedBindings)) {
+        const importSpecifier = namedBindings.elements.find((element) => {
+          const compare = element.propertyName ?? element.name;
+          return compare.text === transformToPath.name;
+        });
+        if (importSpecifier) {
+          return importSpecifier.name.text;
+        }
+      }
+    } else {
+      return statement.importClause.name?.escapedText.toString();
     }
   }
 };
@@ -47,16 +52,4 @@ export const tryGetTransformToPathTypeArgument = (
     return getTransformToPathTypeArgument(ts, node, transformToPathName);
   }
   return undefined;
-};
-
-export const isTransformToPathImport = (ts: TTypeScript, node: Node) => {
-  if (ts.isImportDeclaration(node)) {
-    const moduleSpecifier = node.moduleSpecifier;
-    if (ts.isStringLiteral(moduleSpecifier)) {
-      const moduleName = moduleSpecifier.text;
-      if (moduleName === packageName) {
-        return true;
-      }
-    }
-  }
 };

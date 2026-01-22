@@ -84,7 +84,7 @@ aFn(transformToPath<typeof import("./exporting")>());`
 
       function writeTsConfig(){
         const tsPatchPlugin:PluginConfig = {
-          transform:"ts-patch-jest-typed-module-name",
+          transform:"ts-patch-jest-typed-module-name/transformer",
         }
         const tsPatchTsConfig = {
           compilerOptions:{

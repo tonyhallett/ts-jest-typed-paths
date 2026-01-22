@@ -7,6 +7,7 @@ import { unsupportedTypeArgumentDiagnosticCode } from "../src/diagnostics";
 describe("transform replaces transformToPath with relative path of the generic parameter type import", () => {
     const raiseDiagnostic = jest.fn();
     const exportingModuleName = "./some-module";
+    const typeExportingModuleName = "./type-export-module";
     const getTransformToPathImport = (alias:string) => {
         const aliasPart = alias ? ` as ${alias}` : "";
         
@@ -65,6 +66,22 @@ describe("transform replaces transformToPath with relative path of the generic p
         expectsTransformTest(codeToTransform);
     });
 
+    it("should work with type imports",async () => {
+        const codeToTransform = createCodeToTransform("IFace", `import type {IFace} from "${typeExportingModuleName}";`);
+        const transformed = await transformTest(codeToTransform);
+        expect(raiseDiagnostic).not.toHaveBeenCalled();
+        expect(transformed).toContain(`noop("${typeExportingModuleName}");`);
+    })
+
+    it("should work with additional transform factory", async () => {
+        const codeToTransform = `import tp from "additionalFactory"
+        const noop = (str:string)=>str;
+            noop(tp<typeof import("${exportingModuleName}")>());
+        `;
+        expectsTransformTest(codeToTransform, "additionalFactory");
+        
+    });
+
     function createCodeToTransform(typeArgument:string, additionalImports:string="", transformToPathAlias:string=""):string{
         const transformToPathName = transformToPathAlias || "transformToPath";
         return `${getTransformToPathImport(transformToPathAlias)}
@@ -73,14 +90,14 @@ describe("transform replaces transformToPath with relative path of the generic p
             noop(${transformToPathName}<${typeArgument}>());
         `;
     }
-    async function expectsTransformTest(codeToTransform:string){
-        const result = await transformTest(codeToTransform);
+    async function expectsTransformTest(codeToTransform:string, moduleNameIfExportsTransformToPath?:string){
+        const result = await transformTest(codeToTransform, moduleNameIfExportsTransformToPath);
 
         expect(raiseDiagnostic).not.toHaveBeenCalled();
         expect(result).toContain(`noop("${exportingModuleName}");`);
     }
 
-    async function transformTest(codeToTransform:string){
+    async function transformTest(codeToTransform:string, moduleNameIfExportsTransformToPath?:string){
         /*
             we create own ts-morph project ("@ts-morph/bootstrap": "^0.28.1",)
             as ts-transformer-testing-library is using version ^0.4.0 of ts-morph, that typescript version 
@@ -91,7 +108,7 @@ describe("transform replaces transformToPath with relative path of the generic p
         */
         
         const transformer:TransformFileOptions["transforms"][0]= program => {
-            return transformToPathFactory(ts as any, raiseDiagnostic)
+            return transformToPathFactory(ts as any, raiseDiagnostic, undefined, moduleNameIfExportsTransformToPath)
         }
         const project = await createProject({useInMemoryFileSystem:true})
         return transform(codeToTransform,{
@@ -105,12 +122,21 @@ export const thing: Thing = {};
 export class AClass {}
 export type ExportedType = {};
 export default class ExportDefault {};`
+                },
+                {
+                    path:`${typeExportingModuleName}.ts`,
+                    contents:`interface IFace {}
+export type { IFace };`
                 }
             ],
             mocks:[
                 {
                     name:packageName,
                     content:`export function transformToPath<T>():string{ throw new Error("Marker fn"); }`
+                },
+                {
+                    name:"additionalFactory",
+                    content:`export default function transformToPath<T>():string{ throw new Error("Marker fn"); }`
                 },
             ]
         })

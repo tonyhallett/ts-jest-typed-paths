@@ -60,13 +60,17 @@ function getImports(
 export const getImportsInfo = (
   ts: TTypeScript,
   sourceFile: SourceFile,
+  moduleNameIfExportsTransformToPath: string | undefined,
 ): ImportsInfo => {
   return sourceFile.statements.reduce((importsInfo, statement) => {
     if (ts.isImportDeclaration(statement)) {
       const moduleSpecifier = statement.moduleSpecifier;
       if (ts.isStringLiteral(moduleSpecifier)) {
         const moduleName = moduleSpecifier.text;
-        if (moduleName === packageName) {
+        if (
+          moduleName === packageName ||
+          moduleName === moduleNameIfExportsTransformToPath
+        ) {
           const transformToPathName = getTransformToPathFunctionName(
             ts,
             statement,

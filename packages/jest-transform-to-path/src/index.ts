@@ -88,11 +88,18 @@ const jestTransformFactory: AdditionalTransformFactory = (
   };
 };
 
-export const createJestFactory = () => {
+export const createJestFactory = (
+  moduleNameIfExportsTransformToPath?: string,
+) => {
   return (
     ts: TTypeScript,
     raiseDiagnostic: (diagnostic: Diagnostic) => void,
   ) => {
-    return transformToPathFactory(ts, raiseDiagnostic, jestTransformFactory);
+    return transformToPathFactory(
+      ts,
+      raiseDiagnostic,
+      jestTransformFactory,
+      moduleNameIfExportsTransformToPath,
+    );
   };
 };

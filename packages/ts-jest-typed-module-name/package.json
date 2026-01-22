@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./transformer": {
+      "types": "./dist/transformer.d.ts",
+      "default": "./dist/transformer.js"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -12,7 +22,8 @@
   },
   "dependencies": {
     "ts-jest": "^29.2.5",
-    "jest-transform-to-path": "1.0.0"
+    "jest-transform-to-path": "1.0.0",
+    "transform-to-path": "1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
