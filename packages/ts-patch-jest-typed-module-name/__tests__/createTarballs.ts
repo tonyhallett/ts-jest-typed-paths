@@ -10,20 +10,23 @@ export default function createTarballs(packages:string[],tarballDir?:string) {
     fs.mkdirSync(tarballDir, { recursive: true });
 
     function run(cmd:string, cwd = root) {
-    execSync(cmd, { cwd, stdio: "inherit" });
+        execSync(cmd, { cwd, stdio: "inherit" });
     }
 
     run("npm run build");
     
     for(const pkg of packages){
         run(`npm pack -w packages/${pkg}`);
+        moveTarball(pkg, tarballDir);
     }
 
-    // 3. Move tarballs
-    for (const file of fs.readdirSync(root)) {
-        if (file.endsWith(".tgz")) {
-            fs.renameSync(path.join(root, file), path.join(tarballDir, file));
+    return tarballDir;
+
+    function moveTarball(pkg:string,tarballDir:string) {
+        for (const file of fs.readdirSync(root)) {
+            if (file.startsWith(pkg) &&file.endsWith(".tgz")) {
+                fs.renameSync(path.join(root, file), path.join(tarballDir, file));
+            }
         }
     }
-    return tarballDir;
 }

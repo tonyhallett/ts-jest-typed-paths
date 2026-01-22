@@ -47,7 +47,7 @@ describe("transformer", () => {
         const tarballPath = path.join(tarballDir, tarballFileName);
         tempDependentProject.npmInstall(tarballPath);
       }
-    }
+  }
 
   describe("ts-patch", () => {
     it("should work", () => {
