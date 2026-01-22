@@ -1,10 +1,10 @@
 import { TsJestTransformer, TsJestTransformerOptions, TsJestTransformOptions } from "ts-jest";
 import * as fs from "fs";
 import * as path from "path";
-import { unsupportedTypeArgumentDiagnosticCode } from "../../transform-to-path/src/diagnostics";
+import { unsupportedTypeArgumentDiagnosticCode } from "../../ts-transform-to-module-name/src/diagnostics";
 import { jestMissingTypeArgumentDiagnosticCode } from "../../jest-typed-module-name/src/index";
 import extendedExpect from "./extendedExpect";
-import { packageName } from "../../transform-to-path/src/package-name";
+import { packageName } from "../../ts-transform-to-module-name/src/package-name";
 import { createTempDependentProject, TempDependentProject } from "test-utils";
 
 describe("transformer", () => {
@@ -16,30 +16,30 @@ describe("transformer", () => {
         "@types/jest": "^29.5.14",
       },
     });
-    addMockTransformToPathDependency();
+    addMockTsTransformToModuleNameDependency();
   });
 
   afterEach(() => {
     tempDependentProject.cleanUp();
   });
 
-  function addMockTransformToPathDependency() {
+  function addMockTsTransformToModuleNameDependency() {
     const nodeModulesPath = path.join(tempDependentProject.testDirectory, "node_modules");
-    const transformToPathPackagePath = path.join(nodeModulesPath, packageName);
-    fs.mkdirSync(transformToPathPackagePath, { recursive: true });
-    const transformToPathPackageJson = {
-      name: "transform-to-path",
+    const tsTransformToModuleNamePackagePath = path.join(nodeModulesPath, packageName);
+    fs.mkdirSync(tsTransformToModuleNamePackagePath, { recursive: true });
+    const tsTransformToModuleNamePackageJson = {
+      name: "ts-transform-to-module-name",
       version: "1.0.0",
       main: "./dist/index.js",
       types: "./dist/index.d.ts",
     };
     fs.writeFileSync(
-      path.join(transformToPathPackagePath, "package.json"),
-      JSON.stringify(transformToPathPackageJson, null, 2),
+      path.join(tsTransformToModuleNamePackagePath, "package.json"),
+      JSON.stringify(tsTransformToModuleNamePackageJson, null, 2),
     );
-    const distPath = path.join(transformToPathPackagePath, "dist");
+    const distPath = path.join(tsTransformToModuleNamePackagePath, "dist");
     fs.mkdirSync(distPath, { recursive: true });
-    const indexDtsContent = `export declare function transformToPath<T>(): string;`;
+    const indexDtsContent = `export declare function transformToModuleName<T>(): string;`;
     fs.writeFileSync(path.join(distPath, "index.d.ts"), indexDtsContent);
   }
 
@@ -133,7 +133,7 @@ describe("transformer", () => {
           );
         });
 
-        it("should error with warning when jest method without type argument or transformToPath ", () => {
+        it("should error with warning when jest method without type argument or transformToModuleName ", () => {
           tsErrorTest(
             `jest.mock("");`,
             "jest.mock is not providing a type argument for transformation to moduleName argument",
@@ -142,12 +142,12 @@ describe("transformer", () => {
         });
       });
 
-      // see ts-jest-integration-test for using the export default transformToPath from ts-jest-typed-module-name
-      it("should transform non generic jest methods when using transformToPath from transform-to-path", () => {
+      // see ts-jest-integration-test for using the export default transformToModuleName from ts-jest-typed-module-name
+      it("should transform non generic jest methods when using transformToModuleName from ts-transform-to-module-name", () => {
         const toTransformCode = `
-          import {transformToPath} from "${packageName}";
+          import {transformToModuleName} from "${packageName}";
           //@ts-ignore
-          jest.dontMock(transformToPath${typeofImportGenericParameter}());`;
+          jest.dontMock(transformToModuleName${typeofImportGenericParameter}());`;
 
         const toTransformPath = tempDependentProject.createFile(toTransformCode, "toTransform.ts");
 

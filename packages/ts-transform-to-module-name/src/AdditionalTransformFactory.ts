@@ -13,7 +13,7 @@ export type GetModuleNameFromTypeArgument = (
   typeArgument: TypeNode,
   member: string,
 ) => string | undefined;
-export type IsTransformToPathCallExpression = (expression: Expression) => boolean;
+export type IsTransformToModuleNameCallExpression = (expression: Expression) => boolean;
 export type AdditionalTransform = (node: Node) => Node | undefined;
 
 export type AdditionalTransformFactory = (
@@ -21,6 +21,6 @@ export type AdditionalTransformFactory = (
   context: TransformationContext,
   ts: TTypeScript,
   getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument,
-  isTransformToPathCallExpression: IsTransformToPathCallExpression,
+  isTransformToModuleNameCallExpression: IsTransformToModuleNameCallExpression,
   raiseDiagnostic: RaiseDiagnostic,
 ) => AdditionalTransform;

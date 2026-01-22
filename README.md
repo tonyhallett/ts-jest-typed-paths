@@ -1,8 +1,8 @@
 # Monorepo for typescript ast tranformation based on generic parameter type to the module name that exports it.
 
-## Base package [transform-to-path](./packages/transform-to-path/README.md)
+## Base package [ts-transform-to-module-name](./packages/ts-transform-to-module-name/README.md)
 
-Provides marker generic function `transformToPath` that will be transformed and injection point `transformToPathFactory` ( as used by jest-typed-module-name).
+Provides marker generic function `transformToModuleName` that will be transformed and extension point `transformToModuleNameFactory` ( as used by jest-typed-module-name).
 
 ## With jest specifics
 

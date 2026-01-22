@@ -8,7 +8,7 @@ import {
 import { getUnsupportedTypeArgumentDiagnostic } from "./diagnostics";
 import { ImportsInfo, getImportsInfo } from "./getImportsInfo";
 import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
-import { tryGetTransformToPathTypeArgument } from "./transformToPath-ast";
+import { tryGetTransformToPathTypeArgument } from "./transformToModuleName-ast";
 import { TTypeScript } from "./ts";
 
 const tryReplaceTransformToPathWithModuleName = (
@@ -36,11 +36,11 @@ const tryReplaceTransformToPathWithModuleName = (
   return undefined;
 };
 
-export const transformToPathFactory = (
+export const transformToModuleNameFactory = (
   ts: TTypeScript,
   raiseDiagnostic: RaiseDiagnostic,
   additionalTransformFactory?: AdditionalTransformFactory,
-  moduleNameIfExportsTransformToPath?: string,
+  moduleNameIfExportsTransformToModuleName?: string,
 ) => {
   const transform = (
     sourceFile: SourceFile,
@@ -92,8 +92,11 @@ export const transformToPathFactory = (
         ts,
         getModuleNameFromTypeArgument,
         (expression) =>
-          tryGetTransformToPathTypeArgument(ts, expression, importsInfo.transformToPathName) !==
-          undefined,
+          tryGetTransformToPathTypeArgument(
+            ts,
+            expression,
+            importsInfo.transformToModuleNameName,
+          ) !== undefined,
         raiseDiagnostic,
       );
     }
@@ -103,7 +106,7 @@ export const transformToPathFactory = (
         const replaced = tryReplaceTransformToPathWithModuleName(
           ts,
           node,
-          importsInfo.transformToPathName,
+          importsInfo.transformToModuleNameName,
           getModuleNameFromTypeArgument,
         );
         if (replaced) {
@@ -128,9 +131,9 @@ export const transformToPathFactory = (
 
   const transformerFactory: TransformerFactory<SourceFile> = (context) => {
     return (sourceFile) => {
-      const importsInfo = getImportsInfo(ts, sourceFile, moduleNameIfExportsTransformToPath);
+      const importsInfo = getImportsInfo(ts, sourceFile, moduleNameIfExportsTransformToModuleName);
       if (
-        importsInfo.transformToPathName !== undefined ||
+        importsInfo.transformToModuleNameName !== undefined ||
         additionalTransformFactory !== undefined
       ) {
         return transform(sourceFile, context, importsInfo);

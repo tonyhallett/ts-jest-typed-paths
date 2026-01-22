@@ -1,2 +1,2 @@
-import { transformToPath } from "transform-to-path";
-export default transformToPath;
+import { transformToModuleName } from "jest-typed-module-name";
+export default transformToModuleName;

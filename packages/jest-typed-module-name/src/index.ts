@@ -1,4 +1,8 @@
-import { AdditionalTransformFactory, transformToPathFactory } from "transform-to-path";
+import {
+  AdditionalTransformFactory,
+  transformToModuleNameFactory,
+  transformToModuleName,
+} from "ts-transform-to-module-name";
 import { getJestCallExpressionInfo, JestCallExpressionInfo } from "./jest-ast";
 import { CallExpression, Diagnostic } from "typescript";
 import { TTypeScript } from "./ts";
@@ -22,7 +26,7 @@ const jestTransformFactory: AdditionalTransformFactory = (
   context,
   ts,
   getModuleNameFromTypeArgument,
-  isTransformToPathCallExpression,
+  isTransformToModuleNameCallExpression,
   raiseDiagnostic,
 ) => {
   const warnForMissingTypeArgument = (jestCallExpressionInfo: JestCallExpressionInfo) => {
@@ -52,19 +56,19 @@ const jestTransformFactory: AdditionalTransformFactory = (
       return node;
     }
 
-    const firstArgumentIsTransformToPath = isTransformToPathCallExpression(
+    const firstArgumentIsTransformToModuleName = isTransformToModuleNameCallExpression(
       jestCallExpressionInfo.firstArgument,
     );
 
     if (jestCallExpressionInfo.typeArgument === undefined) {
-      if (!firstArgumentIsTransformToPath) {
+      if (!firstArgumentIsTransformToModuleName) {
         warnForMissingTypeArgument(jestCallExpressionInfo);
       }
       return node;
     }
 
-    // do not transform if first argument is transformToPath
-    if (firstArgumentIsTransformToPath) {
+    // do not transform if first argument is transformToModuleName
+    if (firstArgumentIsTransformToModuleName) {
       return node;
     }
 
@@ -81,13 +85,15 @@ const jestTransformFactory: AdditionalTransformFactory = (
   };
 };
 
-export const createJestFactory = (moduleNameIfExportsTransformToPath?: string) => {
+export const createJestFactory = (moduleNameIfExportsTransformToModuleName?: string) => {
   return (ts: TTypeScript, raiseDiagnostic: (diagnostic: Diagnostic) => void) => {
-    return transformToPathFactory(
+    return transformToModuleNameFactory(
       ts,
       raiseDiagnostic,
       jestTransformFactory,
-      moduleNameIfExportsTransformToPath,
+      moduleNameIfExportsTransformToModuleName,
     );
   };
 };
+
+export { transformToModuleName };

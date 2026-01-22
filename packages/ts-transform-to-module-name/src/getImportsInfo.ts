@@ -1,7 +1,7 @@
 import { ImportDeclaration, SourceFile } from "typescript";
 import { getTypeAliasModuleName } from "./helpers";
 import { packageName } from "./package-name";
-import { getTransformToPathFunctionName } from "./transformToPath-ast";
+import { getTransformToModuleNameName } from "./transformToModuleName-ast";
 import { TTypeScript } from "./ts";
 
 export interface ImportInfo {
@@ -14,7 +14,7 @@ export class ImportsInfo {
   add(importInfo: ImportInfo) {
     this.imports.push(importInfo);
   }
-  transformToPathName: string | undefined;
+  transformToModuleNameName: string | undefined;
 
   getModuleName($import: string) {
     return this.imports.find((importInfo) => importInfo.imports.includes($import))?.moduleName;
@@ -56,17 +56,17 @@ function getImports(
 export const getImportsInfo = (
   ts: TTypeScript,
   sourceFile: SourceFile,
-  moduleNameIfExportsTransformToPath: string | undefined,
+  moduleNameIfExportsTransformToModuleName: string | undefined,
 ): ImportsInfo => {
   return sourceFile.statements.reduce((importsInfo, statement) => {
     if (ts.isImportDeclaration(statement)) {
       const moduleSpecifier = statement.moduleSpecifier;
       if (ts.isStringLiteral(moduleSpecifier)) {
         const moduleName = moduleSpecifier.text;
-        if (moduleName === packageName || moduleName === moduleNameIfExportsTransformToPath) {
-          const transformToPathName = getTransformToPathFunctionName(ts, statement);
-          if (transformToPathName) {
-            importsInfo.transformToPathName = transformToPathName;
+        if (moduleName === packageName || moduleName === moduleNameIfExportsTransformToModuleName) {
+          const transformToModuleNameName = getTransformToModuleNameName(ts, statement);
+          if (transformToModuleNameName) {
+            importsInfo.transformToModuleNameName = transformToModuleNameName;
           }
         } else {
           getImports(ts, statement, moduleName, importsInfo);

@@ -1,15 +1,15 @@
 import { CallExpression, ImportDeclaration, Node } from "typescript";
-import { transformToPath } from "./transformToPath";
+import { transformToModuleName } from "./transformToModuleName";
 import { TTypeScript } from "./ts";
 
-export const getTransformToPathFunctionName = (ts: TTypeScript, statement: ImportDeclaration) => {
+export const getTransformToModuleNameName = (ts: TTypeScript, statement: ImportDeclaration) => {
   if (statement.importClause) {
     const namedBindings = statement.importClause.namedBindings;
     if (namedBindings) {
       if (ts.isNamedImports(namedBindings)) {
         const importSpecifier = namedBindings.elements.find((element) => {
           const compare = element.propertyName ?? element.name;
-          return compare.text === transformToPath.name;
+          return compare.text === transformToModuleName.name;
         });
         if (importSpecifier) {
           return importSpecifier.name.text;

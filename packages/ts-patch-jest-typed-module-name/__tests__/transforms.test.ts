@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PluginConfig } from "ts-patch";
-import { unsupportedTypeArgumentDiagnosticCode } from "../../transform-to-path/src/diagnostics";
+import { unsupportedTypeArgumentDiagnosticCode } from "../../ts-transform-to-module-name/src/diagnostics";
 import { spawnSync } from "child_process";
-import { packageName as transformToPathPackageName } from "../../transform-to-path/src/package-name";
+import { packageName as tsTransformToModuleNamePackageName } from "../../ts-transform-to-module-name/src/package-name";
 import { createTempDependentProject, TempDependentProject } from "test-utils";
 import createTarballs from "./createTarballs";
 
@@ -11,7 +11,7 @@ describe("transformer", () => {
   let tempDependentProject: TempDependentProject;
   let tarballDir: string;
   const packagesInstallOrder = [
-    "transform-to-path",
+    "ts-transform-to-module-name",
     "jest-typed-module-name",
     "ts-patch-jest-typed-module-name",
   ];
@@ -55,24 +55,24 @@ describe("transformer", () => {
 
   describe("ts-patch", () => {
     it("should work", () => {
-      const code = `import { transformToPath } from "${transformToPathPackageName}";
+      const code = `import { transformToModuleName } from "${tsTransformToModuleNamePackageName}";
 		const aFn = (path:string) => {};
-aFn(transformToPath<typeof import("./exporting")>());`;
+aFn(transformToModuleName<typeof import("./exporting")>());`;
       const { transpiled } = tsPatchTest(code);
 
       expect(transpiled).toContain('aFn("./exporting");');
     });
 
     it("should have diagnostic", () => {
-      const errorCode = `import { transformToPath } from "${transformToPathPackageName}";
+      const errorCode = `import { transformToModuleName } from "${tsTransformToModuleNamePackageName}";
       const aFn = (path:string) => {};
       
-      aFn(transformToPath<string>());`;
+      aFn(transformToModuleName<string>());`;
 
       const { processOut } = tsPatchTest(errorCode);
 
       expect(processOut).toContain(
-        `(4,27): error TS${unsupportedTypeArgumentDiagnosticCode}: Unsupported usage of type argument for transformToPath`,
+        `(4,33): error TS${unsupportedTypeArgumentDiagnosticCode}: Unsupported usage of type argument for transformToModuleName`,
       );
     });
 

@@ -1,5 +1,5 @@
 {
-  "name": "transform-to-path-workspace",
+  "name": "ts-transform-to-module-name-workspace",
   "version": "1.0.0",
   "description": "transforming generic parameter imported type to string path",
   "private": true,

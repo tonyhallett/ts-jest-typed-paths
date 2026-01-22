@@ -5,5 +5,5 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../transform-to-path" }]
+  "references": [{ "path": "../ts-transform-to-module-name" }]
 }

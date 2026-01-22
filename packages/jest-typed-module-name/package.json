@@ -7,7 +7,7 @@
     "dist"
   ],
   "dependencies": {
-    "transform-to-path": "1.0.0"
+    "ts-transform-to-module-name": "1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

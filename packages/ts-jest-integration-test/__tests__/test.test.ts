@@ -9,7 +9,7 @@ describe("transformer", () => {
     expect(dependency).toHaveBeenCalled();
   });
 
-  it("should transformToPath", () => {
+  it("should transformToModuleName", () => {
     expect(tp<typeof dependency>()).toBe("../src/dependency");
   });
 });
