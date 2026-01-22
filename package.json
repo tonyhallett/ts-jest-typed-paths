@@ -11,8 +11,12 @@
     "pack": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" scripts/pack-workspace.ts"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "prettier": "3.8.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.53.1"
   },
   "author": "Tony Hallett",
   "license": "ISC",
@@ -20,9 +24,5 @@
     "packages": [
       "packages/*"
     ]
-  },
-  "dependencies": {
-    "-": "^0.0.1",
-    "D": "^1.0.0"
   }
 }

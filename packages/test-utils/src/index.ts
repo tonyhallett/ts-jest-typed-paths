@@ -12,7 +12,7 @@ export interface TempDependentProject {
 }
 
 export function createTempDependentProject(
-  additionalPackageJson: Record<string, any>,
+  additionalPackageJson: Record<string, unknown>,
 ): TempDependentProject {
   const testDirectory = mkdtempSync(path.join(os.tmpdir(), "typedpathstest-"));
   createPackageJson();
