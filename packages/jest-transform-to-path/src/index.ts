@@ -1,7 +1,4 @@
-import {
-  AdditionalTransformFactory,
-  transformToPathFactory,
-} from "transform-to-path";
+import { AdditionalTransformFactory, transformToPathFactory } from "transform-to-path";
 import { getJestCallExpressionInfo, JestCallExpressionInfo } from "./jest-ast";
 import { CallExpression, Diagnostic } from "typescript";
 import { TTypeScript } from "./ts";
@@ -11,12 +8,10 @@ const updateJestMethodCallWithPath = (
   node: CallExpression,
   moduleName: string,
 ) => {
-  return ts.factory.updateCallExpression(
-    node,
-    node.expression,
-    node.typeArguments,
-    [ts.factory.createStringLiteral(moduleName), ...node.arguments.slice(1)],
-  );
+  return ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
+    ts.factory.createStringLiteral(moduleName),
+    ...node.arguments.slice(1),
+  ]);
 };
 
 // todo
@@ -30,9 +25,7 @@ const jestTransformFactory: AdditionalTransformFactory = (
   isTransformToPathCallExpression,
   raiseDiagnostic,
 ) => {
-  const warnForMissingTypeArgument = (
-    jestCallExpressionInfo: JestCallExpressionInfo,
-  ) => {
+  const warnForMissingTypeArgument = (jestCallExpressionInfo: JestCallExpressionInfo) => {
     // could look at the moduleName argument to see if is empty string
     raiseDiagnostic({
       /* 
@@ -88,13 +81,8 @@ const jestTransformFactory: AdditionalTransformFactory = (
   };
 };
 
-export const createJestFactory = (
-  moduleNameIfExportsTransformToPath?: string,
-) => {
-  return (
-    ts: TTypeScript,
-    raiseDiagnostic: (diagnostic: Diagnostic) => void,
-  ) => {
+export const createJestFactory = (moduleNameIfExportsTransformToPath?: string) => {
+  return (ts: TTypeScript, raiseDiagnostic: (diagnostic: Diagnostic) => void) => {
     return transformToPathFactory(
       ts,
       raiseDiagnostic,

@@ -1,7 +1,4 @@
-import {
-  transform,
-  TransformFileOptions,
-} from "ts-transformer-testing-library";
+import { transform, TransformFileOptions } from "ts-transformer-testing-library";
 import { createProject, ts } from "@ts-morph/bootstrap";
 import { transformToPathFactory } from "../src/transformToPathFactory";
 import { packageName } from "../src/package-name";
@@ -29,22 +26,16 @@ describe("transform replaces transformToPath with relative path of the generic p
       messageText: "Unsupported usage of type argument for transformToPath",
       category: ts.DiagnosticCategory.Error,
     };
-    expect(raiseDiagnostic).toHaveBeenCalledWith(
-      expect.objectContaining(expectedDiagnostic),
-    );
+    expect(raiseDiagnostic).toHaveBeenCalledWith(expect.objectContaining(expectedDiagnostic));
   });
 
   it("should work with typeof import as the generic parameter", async () => {
-    const codeToTransform = createCodeToTransform(
-      `typeof import("${exportingModuleName}")`,
-    );
+    const codeToTransform = createCodeToTransform(`typeof import("${exportingModuleName}")`);
     expectsTransformTest(codeToTransform);
   });
 
   it(`should work with <import("../imported/exporting").ExportedType>`, () => {
-    const codeToTransform = createCodeToTransform(
-      `import("${exportingModuleName}").ExportedType`,
-    );
+    const codeToTransform = createCodeToTransform(`import("${exportingModuleName}").ExportedType`);
     expectsTransformTest(codeToTransform);
   });
 
@@ -123,10 +114,7 @@ describe("transform replaces transformToPath with relative path of the generic p
     codeToTransform: string,
     moduleNameIfExportsTransformToPath?: string,
   ) {
-    const result = await transformTest(
-      codeToTransform,
-      moduleNameIfExportsTransformToPath,
-    );
+    const result = await transformTest(codeToTransform, moduleNameIfExportsTransformToPath);
 
     expect(raiseDiagnostic).not.toHaveBeenCalled();
     expect(result).toContain(`noop("${exportingModuleName}");`);
@@ -156,8 +144,7 @@ describe("transform replaces transformToPath with relative path of the generic p
     const project = await createProject({ useInMemoryFileSystem: true });
     return transform(codeToTransform, {
       transforms: [transformer],
-      project:
-        project as unknown as (typeof transform)["arguments"][1]["project"],
+      project: project as unknown as (typeof transform)["arguments"][1]["project"],
       sources: [
         {
           path: `${exportingModuleName}.ts`,

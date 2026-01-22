@@ -44,13 +44,9 @@ describe("transformer", () => {
   function installTarballs() {
     const files = fs.readdirSync(tarballDir);
     for (const pkg of packagesInstallOrder) {
-      const tarballFileName = files.find(
-        (file) => file.startsWith(pkg) && file.endsWith(".tgz"),
-      );
+      const tarballFileName = files.find((file) => file.startsWith(pkg) && file.endsWith(".tgz"));
       if (!tarballFileName) {
-        throw new Error(
-          `Could not find tarball for package ${pkg} in ${tarballDir}`,
-        );
+        throw new Error(`Could not find tarball for package ${pkg} in ${tarballDir}`);
       }
       const tarballPath = path.join(tarballDir, tarballFileName);
       tempDependentProject.npmInstall(tarballPath);
@@ -84,10 +80,7 @@ aFn(transformToPath<typeof import("./exporting")>());`;
       transpiled: string;
       processOut: string;
     } {
-      const toTransformPath = tempDependentProject.createFile(
-        code,
-        "toTransform.ts",
-      );
+      const toTransformPath = tempDependentProject.createFile(code, "toTransform.ts");
       const tsConfigPath = writeTsConfig();
 
       const command = `npm run tspatch -- --project ${tsConfigPath}`;

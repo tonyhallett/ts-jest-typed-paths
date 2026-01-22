@@ -13,9 +13,7 @@ export type GetModuleNameFromTypeArgument = (
   typeArgument: TypeNode,
   member: string,
 ) => string | undefined;
-export type IsTransformToPathCallExpression = (
-  expression: Expression,
-) => boolean;
+export type IsTransformToPathCallExpression = (expression: Expression) => boolean;
 export type AdditionalTransform = (node: Node) => Node | undefined;
 
 export type AdditionalTransformFactory = (

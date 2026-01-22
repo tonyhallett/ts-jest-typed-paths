@@ -17,9 +17,7 @@ export class ImportsInfo {
   transformToPathName: string | undefined;
 
   getModuleName($import: string) {
-    return this.imports.find((importInfo) =>
-      importInfo.imports.includes($import),
-    )?.moduleName;
+    return this.imports.find((importInfo) => importInfo.imports.includes($import))?.moduleName;
   }
 }
 
@@ -31,11 +29,9 @@ function getImports(
 ) {
   if (importDeclaration.importClause?.namedBindings) {
     if (ts.isNamedImports(importDeclaration.importClause.namedBindings)) {
-      const imports = importDeclaration.importClause.namedBindings.elements.map(
-        (element) => {
-          return element.name.getText();
-        },
-      );
+      const imports = importDeclaration.importClause.namedBindings.elements.map((element) => {
+        return element.name.getText();
+      });
       importsInfo.add({
         imports,
         moduleName,
@@ -67,14 +63,8 @@ export const getImportsInfo = (
       const moduleSpecifier = statement.moduleSpecifier;
       if (ts.isStringLiteral(moduleSpecifier)) {
         const moduleName = moduleSpecifier.text;
-        if (
-          moduleName === packageName ||
-          moduleName === moduleNameIfExportsTransformToPath
-        ) {
-          const transformToPathName = getTransformToPathFunctionName(
-            ts,
-            statement,
-          );
+        if (moduleName === packageName || moduleName === moduleNameIfExportsTransformToPath) {
+          const transformToPathName = getTransformToPathFunctionName(ts, statement);
           if (transformToPathName) {
             importsInfo.transformToPathName = transformToPathName;
           }

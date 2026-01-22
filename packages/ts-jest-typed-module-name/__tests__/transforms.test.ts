@@ -1,8 +1,4 @@
-import {
-  TsJestTransformer,
-  TsJestTransformerOptions,
-  TsJestTransformOptions,
-} from "ts-jest";
+import { TsJestTransformer, TsJestTransformerOptions, TsJestTransformOptions } from "ts-jest";
 import * as fs from "fs";
 import * as path from "path";
 import { unsupportedTypeArgumentDiagnosticCode } from "../../transform-to-path/src/diagnostics";
@@ -28,10 +24,7 @@ describe("transformer", () => {
   });
 
   function addMockTransformToPathDependency() {
-    const nodeModulesPath = path.join(
-      tempDependentProject.testDirectory,
-      "node_modules",
-    );
+    const nodeModulesPath = path.join(tempDependentProject.testDirectory, "node_modules");
     const transformToPathPackagePath = path.join(nodeModulesPath, packageName);
     fs.mkdirSync(transformToPathPackagePath, { recursive: true });
     const transformToPathPackageJson = {
@@ -100,10 +93,7 @@ describe("transformer", () => {
         });
 
         it("should transform jest.createMockFromModule from type argument import", () => {
-          transformJestMethodTest(
-            "createMockFromModule",
-            "const createMocked = ",
-          );
+          transformJestMethodTest("createMockFromModule", "const createMocked = ");
         });
 
         it("should transform jest.unstable_mockModule from type argument import", () => {
@@ -159,15 +149,9 @@ describe("transformer", () => {
           //@ts-ignore
           jest.dontMock(transformToPath${typeofImportGenericParameter}());`;
 
-        const toTransformPath = tempDependentProject.createFile(
-          toTransformCode,
-          "toTransform.ts",
-        );
+        const toTransformPath = tempDependentProject.createFile(toTransformCode, "toTransform.ts");
 
-        const transformed = transformWithoutSourceMapping(
-          toTransformCode,
-          toTransformPath,
-        );
+        const transformed = transformWithoutSourceMapping(toTransformCode, toTransformPath);
 
         expect(transformed).toContain(`jest.dontMock("./exporting")`);
       });
@@ -180,54 +164,29 @@ describe("transformer", () => {
       transformPlaceholderTest(toTransformCode);
     }
 
-    function getJestPlaceholderMethodPrefix(
-      mockMethodName: string,
-      prefix = "",
-    ) {
+    function getJestPlaceholderMethodPrefix(mockMethodName: string, prefix = "") {
       return `${prefix}jest.${mockMethodName}${typeofImportGenericParameter}("placeholder"`;
     }
 
-    function transformTestExpected(
-      toTransformCode: string,
-      expectedTransformedCode: string,
-    ) {
-      const toTransformPath = tempDependentProject.createFile(
-        toTransformCode,
-        "toTransform.ts",
-      );
+    function transformTestExpected(toTransformCode: string, expectedTransformedCode: string) {
+      const toTransformPath = tempDependentProject.createFile(toTransformCode, "toTransform.ts");
 
       const expectedPath = tempDependentProject.createFile(
         expectedTransformedCode,
         "expectedTransformed.ts",
       );
-      const transformed = transformWithoutSourceMapping(
-        toTransformCode,
-        toTransformPath,
-      );
-      const expected = transformWithoutSourceMapping(
-        expectedTransformedCode,
-        expectedPath,
-      );
+      const transformed = transformWithoutSourceMapping(toTransformCode, toTransformPath);
+      const expected = transformWithoutSourceMapping(expectedTransformedCode, expectedPath);
       expect(transformed).toEqual(expected);
     }
 
-    function tsErrorTest(
-      code: string,
-      errorMessage: string,
-      diagnosticCodes: number[],
-    ) {
+    function tsErrorTest(code: string, errorMessage: string, diagnosticCodes: number[]) {
       // https://github.com/kulshekhar/ts-jest/blob/main/src/utils/ts-error.ts
-      extendedExpect(() => doTransform(code)).toThrowTsError(
-        errorMessage,
-        diagnosticCodes,
-      );
+      extendedExpect(() => doTransform(code)).toThrowTsError(errorMessage, diagnosticCodes);
     }
 
     function doTransform(code: string) {
-      const toTransformPath = tempDependentProject.createFile(
-        code,
-        "toTransform.ts",
-      );
+      const toTransformPath = tempDependentProject.createFile(code, "toTransform.ts");
       return transformWithoutSourceMapping(code, toTransformPath);
     }
 
@@ -238,11 +197,7 @@ describe("transformer", () => {
         config: {},
       } as TsJestTransformOptions;
 
-      const result = tsJestTransformer.process(
-        code,
-        filePath,
-        tsJestTransformOptions,
-      );
+      const result = tsJestTransformer.process(code, filePath, tsJestTransformOptions);
       return removeSourceMapping(result.code);
 
       function removeSourceMapping(code: string) {
@@ -267,10 +222,7 @@ describe("transformer", () => {
     }
 
     function transformPlaceholderTest(toTransformCode: string) {
-      transformTestExpected(
-        toTransformCode,
-        replaceWithImportPath(toTransformCode),
-      );
+      transformTestExpected(toTransformCode, replaceWithImportPath(toTransformCode));
     }
 
     function replaceWithImportPath(code: string) {

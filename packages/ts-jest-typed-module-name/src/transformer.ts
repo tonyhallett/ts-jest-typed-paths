@@ -9,9 +9,7 @@ const transformerDescription: AstTransformerDesc = {
     const configSet = tsCompiler.configSet;
     const ts = configSet.compilerModule;
     const jestFactory = createJestFactory("ts-jest-typed-module-name");
-    return jestFactory(ts, (diagnostic) =>
-      configSet.raiseDiagnostics([diagnostic]),
-    );
+    return jestFactory(ts, (diagnostic) => configSet.raiseDiagnostics([diagnostic]));
   },
 };
 export const { name, version, factory } = transformerDescription;

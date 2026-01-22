@@ -1,8 +1,7 @@
 import { TypeNode } from "typescript";
 import { TTypeScript } from "./ts";
 
-const replaceQuotes = (input: string) =>
-  input.replace("'", "").replace('"', "");
+const replaceQuotes = (input: string) => input.replace("'", "").replace('"', "");
 
 export function getTypeAliasModuleName(ts: TTypeScript, type: TypeNode) {
   if (

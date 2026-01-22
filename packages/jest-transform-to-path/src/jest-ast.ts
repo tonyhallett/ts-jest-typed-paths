@@ -1,9 +1,4 @@
-import {
-  CallExpression,
-  Expression,
-  PropertyAccessExpression,
-  TypeNode,
-} from "typescript";
+import { CallExpression, Expression, PropertyAccessExpression, TypeNode } from "typescript";
 import { TTypeScript } from "./ts";
 
 /*
@@ -45,14 +40,9 @@ const hasJestRootPropertyAccessExpression = (
   }
   if (
     ts.isCallExpression(propertyAccessExpression.expression) &&
-    ts.isPropertyAccessExpression(
-      propertyAccessExpression.expression.expression,
-    )
+    ts.isPropertyAccessExpression(propertyAccessExpression.expression.expression)
   ) {
-    return hasJestRootPropertyAccessExpression(
-      ts,
-      propertyAccessExpression.expression.expression,
-    );
+    return hasJestRootPropertyAccessExpression(ts, propertyAccessExpression.expression.expression);
   }
 };
 
@@ -69,19 +59,14 @@ export const getJestCallExpressionInfo = (
   callExpression: CallExpression,
 ): JestCallExpressionInfo | undefined => {
   const callArguments = callExpression.arguments;
-  const numTypeArguments = callExpression.typeArguments
-    ? callExpression.typeArguments.length
-    : 0;
+  const numTypeArguments = callExpression.typeArguments ? callExpression.typeArguments.length : 0;
   if (numTypeArguments > 1 || callArguments.length === 0) {
     return;
   }
   const expression = callExpression.expression;
   if (ts.isPropertyAccessExpression(expression)) {
     if (
-      !(
-        ts.isIdentifier(expression.name) &&
-        jestPropertyIdentifiers.includes(expression.name.text)
-      )
+      !(ts.isIdentifier(expression.name) && jestPropertyIdentifiers.includes(expression.name.text))
     ) {
       return undefined;
     }

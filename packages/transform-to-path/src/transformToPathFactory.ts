@@ -1,9 +1,4 @@
-import ts, {
-  SourceFile,
-  TransformationContext,
-  Visitor,
-  TransformerFactory,
-} from "typescript";
+import ts, { SourceFile, TransformationContext, Visitor, TransformerFactory } from "typescript";
 import {
   AdditionalTransform,
   AdditionalTransformFactory,
@@ -52,16 +47,10 @@ export const transformToPathFactory = (
     context: TransformationContext,
     importsInfo: ImportsInfo,
   ) => {
-    const getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument = (
-      typeArgument,
-      member,
-    ) => {
+    const getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument = (typeArgument, member) => {
       const typeNameOrModuleName = getTypeNameOrModuleName(ts, typeArgument);
 
-      const doRaiseDiagnostic = (startLength: {
-        start: number;
-        length: number;
-      }) => {
+      const doRaiseDiagnostic = (startLength: { start: number; length: number }) => {
         /*
           for built in diagonstics see typescript.js
           var Diagnostics = {
@@ -83,9 +72,7 @@ export const transformToPathFactory = (
       } else {
         let moduleName: string | undefined;
         if (typeNameOrModuleName.isTypeName) {
-          moduleName = importsInfo.getModuleName(
-            typeNameOrModuleName.typeNameOrModuleName,
-          );
+          moduleName = importsInfo.getModuleName(typeNameOrModuleName.typeNameOrModuleName);
         } else {
           moduleName = typeNameOrModuleName.typeNameOrModuleName;
         }
@@ -105,11 +92,8 @@ export const transformToPathFactory = (
         ts,
         getModuleNameFromTypeArgument,
         (expression) =>
-          tryGetTransformToPathTypeArgument(
-            ts,
-            expression,
-            importsInfo.transformToPathName,
-          ) !== undefined,
+          tryGetTransformToPathTypeArgument(ts, expression, importsInfo.transformToPathName) !==
+          undefined,
         raiseDiagnostic,
       );
     }
@@ -139,18 +123,12 @@ export const transformToPathFactory = (
       return visitor;
     }
 
-    return ts.visitNode(sourceFile, createVisitor(context), (node) =>
-      ts.isSourceFile(node),
-    )!;
+    return ts.visitNode(sourceFile, createVisitor(context), (node) => ts.isSourceFile(node))!;
   };
 
   const transformerFactory: TransformerFactory<SourceFile> = (context) => {
     return (sourceFile) => {
-      const importsInfo = getImportsInfo(
-        ts,
-        sourceFile,
-        moduleNameIfExportsTransformToPath,
-      );
+      const importsInfo = getImportsInfo(ts, sourceFile, moduleNameIfExportsTransformToPath);
       if (
         importsInfo.transformToPathName !== undefined ||
         additionalTransformFactory !== undefined

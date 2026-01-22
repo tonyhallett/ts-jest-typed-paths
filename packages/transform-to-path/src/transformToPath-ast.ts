@@ -2,10 +2,7 @@ import { CallExpression, ImportDeclaration, Node } from "typescript";
 import { transformToPath } from "./transformToPath";
 import { TTypeScript } from "./ts";
 
-export const getTransformToPathFunctionName = (
-  ts: TTypeScript,
-  statement: ImportDeclaration,
-) => {
+export const getTransformToPathFunctionName = (ts: TTypeScript, statement: ImportDeclaration) => {
   if (statement.importClause) {
     const namedBindings = statement.importClause.namedBindings;
     if (namedBindings) {
