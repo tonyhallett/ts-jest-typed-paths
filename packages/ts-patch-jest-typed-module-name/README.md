@@ -37,7 +37,7 @@ unstable_unmockModule
 ```ts
 import toTest from "../src/to-test";
 import dependency from "../src/dependency";
-import tp from "ts-jest-typed-module-name";
+import ttmn from "ts-jest-typed-module-name";
 
 jest.mock<typeof dependency>("");
 
@@ -48,7 +48,7 @@ describe("transformer", () => {
   });
 
   it("should transformToModuleName", () => {
-    expect(tp<typeof dependency>()).toBe("../src/dependency");
+    expect(ttmn<typeof dependency>()).toBe("../src/dependency");
   });
 });
 ```
@@ -58,7 +58,7 @@ describe("transformer", () => {
 ```ts
 import toTest from "../src/to-test";
 import dependency from "../src/dependency";
-import tp from "ts-jest-typed-module-name";
+import ttmn from "ts-jest-typed-module-name";
 
 jest.mock<typeof dependency>("../src/dependency");
 
