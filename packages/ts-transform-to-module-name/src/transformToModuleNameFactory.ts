@@ -46,7 +46,7 @@ export const transformToModuleNameFactory = (
     sourceFile: SourceFile,
     context: TransformationContext,
     importsInfo: ImportsInfo,
-  ) => {
+  ): SourceFile => {
     const getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument = (typeArgument, member) => {
       const typeNameOrModuleName = getTypeNameOrModuleName(ts, typeArgument);
 
@@ -126,7 +126,11 @@ export const transformToModuleNameFactory = (
       return visitor;
     }
 
-    return ts.visitNode(sourceFile, createVisitor(context), (node) => ts.isSourceFile(node))!;
+    const isSourceFile = (node: ts.Node): node is ts.SourceFile => {
+      return ts.isSourceFile(node);
+    };
+
+    return ts.visitNode(sourceFile, createVisitor(context), isSourceFile)!;
   };
 
   const transformerFactory: TransformerFactory<SourceFile> = (context) => {

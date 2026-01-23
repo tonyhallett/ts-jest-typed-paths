@@ -1,5 +1,4 @@
 import { type JestConfigWithTsJest, createDefaultPreset } from "ts-jest";
-import { resolveModuleName } from "typescript";
 
 const defaultPreset = createDefaultPreset();
 

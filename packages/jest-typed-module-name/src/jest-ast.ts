@@ -31,7 +31,7 @@ const isRootJestPropertyAccessExpression = (
 const hasJestRootPropertyAccessExpression = (
   ts: TTypeScript,
   propertyAccessExpression: PropertyAccessExpression,
-) => {
+): boolean | undefined => {
   if (!ts.isIdentifier(propertyAccessExpression.name)) {
     return false;
   }

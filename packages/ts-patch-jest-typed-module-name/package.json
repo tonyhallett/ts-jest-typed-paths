@@ -17,15 +17,24 @@
     "dist"
   ],
   "scripts": {
-    "pretest": "tsc -b",
+    "build": "node ../../scripts/build-package.js",
+    "pretest": "npm run build",
     "test": "jest"
   },
   "dependencies": {
     "jest-typed-module-name": "1.0.0",
     "ts-patch": "^3.3.0"
   },
+  "peerDependencies": {
+    "typescript": ">=5.0.2 <6",
+    "ts-patch": "^3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "typescript": "^5.6.3",
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",

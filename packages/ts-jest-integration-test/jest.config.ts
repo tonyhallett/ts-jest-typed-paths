@@ -1,4 +1,5 @@
 import { type JestConfigWithTsJest, createDefaultPreset } from "ts-jest";
+const compiler = process.env.TS_COMPILER_PATH ?? "typescript";
 
 const defaultPreset = createDefaultPreset();
 
@@ -9,6 +10,7 @@ const jestConfig: JestConfigWithTsJest = {
     "^.+\\.tsx?$": [
       "ts-jest",
       {
+        compiler,
         tsconfig: {
           esModuleInterop: true,
         },

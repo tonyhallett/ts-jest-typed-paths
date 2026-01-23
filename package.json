@@ -9,8 +9,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write '**/*.{ts,tsx,js,json,md}'",
     "format:check": "prettier --check '**/*.{ts,tsx,js,json,md}'",
-    "clean": " tsc -build tsconfig.build.json --clean",
-    "build": "npm run clean && tsc -build tsconfig.build.json",
+    "build": "node ./scripts/build-packages.js",
     "test": "npm run test --workspaces --if-present",
     "prepack": "npm run build",
     "pack": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" scripts/pack-workspace.ts",
@@ -24,7 +23,7 @@
     "lint-staged": "^16.2.7",
     "prettier": "3.8.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
+    "typescript": "^5.6.3",
     "typescript-eslint": "^8.53.1"
   },
   "overrides": {
