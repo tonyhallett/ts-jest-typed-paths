@@ -26,8 +26,11 @@ The following methods have or may have a generic parameter dependending upon whe
 For these methods, the default export from ts-jest-typed-module-name can be used to provide an imported type from which the moduleName parameter value will be replaced.
 
 deepUnmock
+
 dontMock
+
 unmock
+
 unstable_unmockModule
 
 ## example
