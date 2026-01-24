@@ -5,14 +5,25 @@ import semver from "semver";
 
 const tsVersionsDir = path.join(__dirname, "..", "ts-versions");
 
-function run(cmd: string, env?: NodeJS.ProcessEnv) {
-  console.log(`\n> ${cmd}`);
-  execSync(cmd, {
-    stdio: "inherit",
-    env: {
-      ...process.env,
-      ...env,
-    },
+const typescriptVersions = getVersionsFromNpm();
+installTypescriptVersions(typescriptVersions, tsVersionsDir);
+runJestForEveryTsVersions(typescriptVersions, tsVersionsDir);
+
+function runJestForEveryTsVersions(
+  typescriptVersions: string[],
+  typeScriptVersionDirectory: string,
+) {
+  typescriptVersions.forEach((version) => {
+    const pathToTs = path.join(
+      typeScriptVersionDirectory,
+      `typescript-${version}`,
+      "node_modules",
+      "typescript",
+    );
+
+    run("jest", {
+      TS_COMPILER_PATH: pathToTs,
+    });
   });
 }
 
@@ -34,13 +45,13 @@ function getVersionsFromNpm() {
     .sort((a, b) => semver.compare(a, b)!);
 }
 
-function installTypescriptVersions(versions: string[]) {
-  if (!fs.existsSync(tsVersionsDir)) {
-    fs.mkdirSync(tsVersionsDir);
+function installTypescriptVersions(versions: string[], dir: string) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
   }
 
   for (const version of versions) {
-    const versionDir = path.join(tsVersionsDir, `typescript-${version}`);
+    const versionDir = path.join(dir, `typescript-${version}`);
     if (fs.existsSync(versionDir)) {
       console.log(`TypeScript ${version} already installed, skipping.`);
       continue;
@@ -49,12 +60,13 @@ function installTypescriptVersions(versions: string[]) {
   }
 }
 
-const typescriptVersions = getVersionsFromNpm();
-installTypescriptVersions(typescriptVersions);
-
-typescriptVersions.forEach((version) => {
-  const pathToTs = path.join(tsVersionsDir, `typescript-${version}`, "node_modules", "typescript");
-  run("jest", {
-    TS_COMPILER_PATH: pathToTs,
+function run(cmd: string, env?: NodeJS.ProcessEnv) {
+  console.log(`\n> ${cmd}`);
+  execSync(cmd, {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      ...env,
+    },
   });
-});
+}
