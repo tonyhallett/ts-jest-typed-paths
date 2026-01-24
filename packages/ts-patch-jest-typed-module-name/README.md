@@ -1,4 +1,4 @@
-# ts-jest-typed-moduled-name
+# ts-patch-jest-typed-moduled-name
 
 No more magic relative paths that have to be updated when file paths change.
 
@@ -40,7 +40,7 @@ unstable_unmockModule
 ```ts
 import toTest from "../src/to-test";
 import dependency from "../src/dependency";
-import ttmn from "ts-jest-typed-module-name";
+import ttmn from "ts-patch-jest-typed-module-name";
 
 jest.mock<typeof dependency>("");
 
