@@ -6,5 +6,6 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 const moduleName = packageJson.name;
 
 const packageNameSrcPath = path.resolve(__dirname, "../src/package-name.ts");
-const packageNameSrc = `export const packageName = "${moduleName}";`;
+// I want this to have a new line at the end of the file
+const packageNameSrc = `export const packageName = "${moduleName}";\n`;
 fs.writeFileSync(packageNameSrcPath, packageNameSrc);
