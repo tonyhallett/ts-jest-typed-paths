@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "./src",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "typescript": ["../../typescript-build/node_modules/typescript"]
+    }
   },
   "include": ["./src"]
 }
