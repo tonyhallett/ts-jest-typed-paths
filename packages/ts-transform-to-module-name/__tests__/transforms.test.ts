@@ -1,8 +1,10 @@
-import { transform, TransformFileOptions } from "ts-transformer-testing-library";
-import { createProject, ts } from "@ts-morph/bootstrap";
+import { ts } from "@ts-morph/bootstrap";
 import { transformToModuleNameFactory } from "../src/transformToModuleNameFactory";
 import { packageName } from "../src/package-name";
 import { unsupportedTypeArgumentDiagnosticCode } from "../src/diagnostics";
+import { TransformerFn, transformStringAsync } from "./ts-morph-transform";
+
+type BuiltTs = (typeof transformToModuleNameFactory)["arguments"][0];
 
 describe("transform replaces transformToModuleName with relative path of the generic parameter type import", () => {
   const raiseDiagnostic = jest.fn();
@@ -124,27 +126,17 @@ describe("transform replaces transformToModuleName with relative path of the gen
     codeToTransform: string,
     moduleNameIfExportsTransformToModuleName?: string,
   ) {
-    /*
-            we create own ts-morph project ("@ts-morph/bootstrap": "^0.28.1",)
-            as ts-transformer-testing-library is using version ^0.4.0 of ts-morph, that typescript version 
-            is incompatible with the transform factory being tested.
-            With the latest ts-morph there is still differences in the ts namespace hence ts as any.
-            The project created also is different from the one created by ts-transformer-testing-library, 
-            another cast.
-        */
-
-    const transformer: TransformFileOptions["transforms"][0] = () => {
+    const transformer: TransformerFn = () => {
       return transformToModuleNameFactory(
-        ts as unknown as (typeof transformToModuleNameFactory)["arguments"][0],
+        ts as unknown as BuiltTs,
         raiseDiagnostic,
         undefined,
         moduleNameIfExportsTransformToModuleName,
       );
     };
-    const project = await createProject({ useInMemoryFileSystem: true });
-    return transform(codeToTransform, {
+
+    return transformStringAsync(codeToTransform, {
       transforms: [transformer],
-      project: project as unknown as (typeof transform)["arguments"][1]["project"],
       sources: [
         {
           path: `${exportingModuleName}.ts`,
