@@ -1,10 +1,10 @@
 import { ts } from "@ts-morph/bootstrap";
-import { transformToModuleNameFactory } from "../src/transformToModuleNameFactory";
-import { packageName } from "../src/package-name";
-import { unsupportedTypeArgumentDiagnosticCode } from "../src/diagnostics";
+import { transformToModuleNameFactory } from "ts-transform-to-module-name";
 import { TransformerFn, transformStringAsync } from "./ts-morph-transform";
 
 type BuiltTs = (typeof transformToModuleNameFactory)["arguments"][0];
+
+const packageName = "ts-transform-to-module-name";
 
 describe("transform replaces transformToModuleName with relative path of the generic parameter type import", () => {
   const raiseDiagnostic = jest.fn();
@@ -23,6 +23,7 @@ describe("transform replaces transformToModuleName with relative path of the gen
     const code = createCodeToTransform("boolean");
     await transformTest(code);
     expect(raiseDiagnostic).toHaveBeenCalledTimes(1);
+    const unsupportedTypeArgumentDiagnosticCode = 10000;
     const expectedDiagnostic: Partial<ts.Diagnostic> = {
       code: unsupportedTypeArgumentDiagnosticCode,
       messageText: "Unsupported usage of type argument for transformToModuleName",
