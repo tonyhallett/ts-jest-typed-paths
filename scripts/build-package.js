@@ -5,7 +5,7 @@ const build = require("./tsc-versioned-project-builder.js");
 const shouldBePkgDir = process.cwd();
 const pkgName = getPackageName(shouldBePkgDir);
 
-build(`Building package ${pkgName}`, shouldBePkgDir, ["--force"]);
+build(`Building package ${pkgName}`, shouldBePkgDir);
 
 function getPackageName(dir) {
   const pkgJsonPath = path.join(dir, "package.json");

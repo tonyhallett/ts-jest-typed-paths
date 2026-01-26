@@ -8,9 +8,8 @@
   ],
   "scripts": {
     "build": "node ../../scripts/build-package.js",
-    "pretest": "npm run create-package-name-export && npm run build",
-    "test": "jest",
-    "create-package-name-export": "ts-node ./scripts/create-package-name-export.ts"
+    "pretest": "npm run build",
+    "test": "jest"
   },
   "devDependencies": {
     "@ts-morph/bootstrap": "^0.28.1",

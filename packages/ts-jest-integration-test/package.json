@@ -4,7 +4,8 @@
   "description": "integration test",
   "private": true,
   "scripts": {
-    "test": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" ./scripts/ts-version-test.ts"
+    "test": "jest",
+    "integration-test": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" ./scripts/ts-version-test.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

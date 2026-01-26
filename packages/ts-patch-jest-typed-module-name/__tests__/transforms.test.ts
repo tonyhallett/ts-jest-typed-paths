@@ -3,7 +3,6 @@ import * as path from "path";
 import { PluginConfig } from "ts-patch";
 import { unsupportedTypeArgumentDiagnosticCode } from "../../ts-transform-to-module-name/src/diagnostics";
 import { spawnSync } from "child_process";
-import { packageName as tsTransformToModuleNamePackageName } from "../../ts-transform-to-module-name/src/package-name";
 import { createTempDependentProject, TempDependentProject } from "test-utils";
 import createTarballs from "./createTarballs";
 
@@ -55,7 +54,7 @@ describe("transformer", () => {
 
   describe("ts-patch", () => {
     it("should work", () => {
-      const code = `import { transformToModuleName } from "${tsTransformToModuleNamePackageName}";
+      const code = `import transformToModuleName from "ts-patch-jest-typed-module-name";
 		const aFn = (path:string) => {};
 aFn(transformToModuleName<typeof import("./exporting")>());`;
       const { transpiled } = tsPatchTest(code);
@@ -64,7 +63,7 @@ aFn(transformToModuleName<typeof import("./exporting")>());`;
     });
 
     it("should have diagnostic", () => {
-      const errorCode = `import { transformToModuleName } from "${tsTransformToModuleNamePackageName}";
+      const errorCode = `import transformToModuleName from "ts-patch-jest-typed-module-name";
       const aFn = (path:string) => {};
       
       aFn(transformToModuleName<string>());`;

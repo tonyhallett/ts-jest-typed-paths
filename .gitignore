@@ -4,3 +4,4 @@ dist/
 *.tsbuildinfo
 *.tgz
 ts-versions/
+packages/ts-patch-integration-test/__tests__/*

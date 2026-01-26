@@ -1,0 +1,19 @@
+{
+  "name": "ts-patch-integration",
+  "version": "1.0.0",
+  "description": "integration test",
+  "private": true,
+  "scripts": {
+    "build": "node ../../scripts/build-package.js",
+    "tspatch": "tspc --project tsconfig.json",
+    "pretest": "npm run build && npm run tspatch",
+    "test": "jest __tests__/test.test.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-patch": "^3.2.1",
+    "ts-patch-jest-typed-module-name": "*"
+  }
+}

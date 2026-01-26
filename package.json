@@ -9,11 +9,11 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write '**/*.{ts,tsx,js,json,md}'",
     "format:check": "prettier --check '**/*.{ts,tsx,js,json,md}'",
-    "build": "node ./scripts/build-packages.js",
-    "test": "npm run test --workspaces --if-present",
-    "prepack": "npm run build",
+    "build-installable": "node ./scripts/build-installable-packages.js",
+    "prepack": "npm run build-installable",
     "pack": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" scripts/pack-workspace.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

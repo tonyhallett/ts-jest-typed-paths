@@ -1,1 +1,3 @@
-export const packageName = "ts-transform-to-module-name";
+import packageJson from "../package.json";
+
+export const packageName = packageJson.name;

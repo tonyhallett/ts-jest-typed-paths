@@ -10,6 +10,12 @@ export default defineConfig(
   tseslint.configs.recommended,
   eslintConfigPrettier,
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**", "**/scripts/*.js"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/coverage/**",
+      "**/scripts/*.js",
+      "packages/ts-patch-integration-test/__tests__/*",
+    ],
   },
 );
