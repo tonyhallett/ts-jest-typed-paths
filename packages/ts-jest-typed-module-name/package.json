@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "node ./scripts/build-test.js",
+    "build": "ts-node ./scripts/build-test.ts",
     "pretest": "npm run build",
     "test": "jest"
   },
@@ -29,7 +29,8 @@
     "typescript": "^5.6.3",
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
-    "test-utils": "*"
+    "test-utils": "*",
+    "ts-node": "^10.9.2"
   },
   "peerDependencies": {
     "ts-jest": "^29.0.0",
