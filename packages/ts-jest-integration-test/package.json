@@ -4,7 +4,10 @@
   "description": "integration test",
   "private": true,
   "scripts": {
-    "test": "jest",
+    "build": "node ../../scripts/build-package.js",
+    "pretest": "npm run build",
+    "test": "jest --no-cache",
+    "preversions-test": "npm run build",
     "versions-test": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" ./scripts/ts-version-test.ts"
   },
   "devDependencies": {

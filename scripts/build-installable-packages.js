@@ -1,3 +1,4 @@
 const build = require("./tsc-versioned-project-builder.js");
 
-build("Building all packages", undefined, ["tsconfig.installables.json"]);
+build("Cleaning installable packages", undefined, ["tsconfig.installables.json", "--clean"]);
+build("Building installable packages", undefined, ["tsconfig.installables.json"]);

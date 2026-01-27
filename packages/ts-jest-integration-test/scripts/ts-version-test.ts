@@ -21,7 +21,7 @@ function runJestForEveryTsVersions(
       "typescript",
     );
 
-    run("jest", {
+    run("jest --no-cache", {
       TS_COMPILER_PATH: pathToTs,
     });
   });

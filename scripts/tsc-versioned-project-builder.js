@@ -20,10 +20,8 @@ function tsVersionedProjectBuildAndLog(buildReason, tscPath, tsVersion, cwd, add
 }
 
 function tsVersionedProjectBuild(tscPath, cwd, additionalArgs) {
-  let args = [tscPath, "-b"];
-  if (additionalArgs) {
-    args = args.concat(additionalArgs);
-  }
+  const args = [tscPath, "-b", ...(additionalArgs ?? [])];
+
   return spawnSync("node", args, {
     stdio: "inherit",
     cwd,

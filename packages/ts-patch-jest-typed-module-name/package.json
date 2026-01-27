@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "node ../../scripts/build-package.js",
+    "build": "node ./scripts/build-test.js",
     "pretest": "npm run build",
     "test": "jest"
   },

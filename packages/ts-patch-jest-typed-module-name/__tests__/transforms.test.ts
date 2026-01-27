@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PluginConfig } from "ts-patch";
-import { unsupportedTypeArgumentDiagnosticCode } from "../../ts-transform-to-module-name/src/diagnostics";
 import { spawnSync } from "child_process";
 import { createTempDependentProject, TempDependentProject } from "test-utils";
 import createTarballs from "./createTarballs";
@@ -76,7 +75,7 @@ aFn(transformToModuleName<typeof import("./exporting")>());`;
       const { processOut } = tsPatchTest(errorCode);
 
       expect(processOut).toContain(
-        `(4,33): error TS${unsupportedTypeArgumentDiagnosticCode}: Unsupported usage of type argument for transformToModuleName`,
+        `(4,33): error TS10000: Unsupported usage of type argument for transformToModuleName`,
       );
     });
 
