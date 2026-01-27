@@ -1,6 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const { spawnSync } = require("child_process");
+import * as fs from "fs";
+import * as path from "path";
+import { spawnSync } from "child_process";
 
 const TS_VERSION = "5.6.3"; // change as needed
 const TS_BUILD_DIR = path.resolve(__dirname, "..", "typescript-build");
@@ -27,4 +27,4 @@ function installBuildTypescript() {
   return { compilerPath: TS_COMPILER_PATH, version: TS_VERSION };
 }
 
-module.exports = installBuildTypescript;
+export default installBuildTypescript;

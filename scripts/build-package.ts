@@ -1,13 +1,13 @@
-const fs = require("fs");
-const path = require("path");
-const build = require("./tsc-versioned-project-builder.js");
+import * as fs from "fs";
+import * as path from "path";
+import build from "./tsc-versioned-project-builder";
 
 const shouldBePkgDir = process.cwd();
 const pkgName = getPackageName(shouldBePkgDir);
 
 build(`Building package ${pkgName}`, shouldBePkgDir);
 
-function getPackageName(dir) {
+function getPackageName(dir: string): string {
   const pkgJsonPath = path.join(dir, "package.json");
 
   if (!fs.existsSync(pkgJsonPath)) {

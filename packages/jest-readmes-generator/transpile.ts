@@ -1,5 +1,5 @@
-import ts from "typescript";
-import fs from "fs";
+import * as ts from "typescript";
+import * as fs from "fs";
 import { factory } from "../ts-jest-typed-module-name/src/transformer";
 
 const compilerInstance = {

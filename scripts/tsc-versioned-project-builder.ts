@@ -1,25 +1,34 @@
-const installBuildTypescript = require("./install-build-typescript");
-const { spawnSync } = require("child_process");
+import installBuildTypescript from "./install-build-typescript";
+import { spawnSync } from "child_process";
 
-function build(buildReason, cwd, additionalArgs) {
+function build(buildReason: string, cwd?: string, additionalArgs?: string[]) {
   const { compilerPath, version } = installBuildTypescript();
   tsVersionedProjectBuildAndLog(buildReason, compilerPath, version, cwd, additionalArgs);
 }
-module.exports = build;
+export default build;
 
-function tsVersionedProjectBuildAndLog(buildReason, tscPath, tsVersion, cwd, additionalArgs) {
+function tsVersionedProjectBuildAndLog(
+  buildReason: string,
+  tscPath: string,
+  tsVersion: string,
+  cwd: string | undefined,
+  additionalArgs: string[] | undefined,
+) {
   log(`${buildReason} with TypeScript ${tsVersion}`);
   const buildResult = tsVersionedProjectBuild(tscPath, cwd, additionalArgs);
   if (buildResult.status !== 0) {
     log("Build failed", true);
-    console.error(`Build failed for package ${packageName}`);
     process.exit(buildResult.status ?? 1);
   }
 
   log("Build succeeded");
 }
 
-function tsVersionedProjectBuild(tscPath, cwd, additionalArgs) {
+function tsVersionedProjectBuild(
+  tscPath: string,
+  cwd: string | undefined,
+  additionalArgs: string[] | undefined,
+) {
   const args = [tscPath, "-b", ...(additionalArgs ?? [])];
 
   return spawnSync("node", args, {
@@ -29,7 +38,7 @@ function tsVersionedProjectBuild(tscPath, cwd, additionalArgs) {
   });
 }
 
-function log(message, isError = false) {
+function log(message: string, isError = false) {
   const logFunction = isError ? console.error : console.log;
   logFunction(`=== ${message} ===`);
 }

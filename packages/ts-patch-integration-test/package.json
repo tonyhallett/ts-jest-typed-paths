@@ -4,7 +4,7 @@
   "description": "integration test",
   "private": true,
   "scripts": {
-    "build": "node ../../scripts/build-package.js",
+    "build": "ts-node ../../scripts/build-package.ts",
     "tspatch": "tspc --project tsconfig.json",
     "pretest": "npm run build && npm run tspatch",
     "test": "jest __tests__/test.test.js"

@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 import { execSync } from "child_process";
-import semver from "semver";
+import * as semver from "semver";
 
 const tsVersionsDir = path.join(__dirname, "..", "ts-versions");
 

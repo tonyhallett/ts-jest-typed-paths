@@ -4,7 +4,10 @@
   "description": "generates jest readmes",
   "private": true,
   "scripts": {
-    "build": "node ../../scripts/build-package.js",
-    "generate-readmes": "npm run build && ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" generate-jest-readmes.ts"
+    "build": "ts-node ../../scripts/build-package.ts",
+    "generate-readmes": "npm run build && ts-node generate-jest-readmes.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
   }
 }
