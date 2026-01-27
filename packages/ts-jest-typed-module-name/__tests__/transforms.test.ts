@@ -1,6 +1,4 @@
 import { TsJestTransformer, TsJestTransformerOptions, TsJestTransformOptions } from "ts-jest";
-import { unsupportedTypeArgumentDiagnosticCode } from "../../ts-transform-to-module-name/src/diagnostics";
-import { jestMissingTypeArgumentDiagnosticCode } from "../../jest-typed-module-name/src/index";
 import extendedExpect from "./extendedExpect";
 import { createTempDependentProject, TempDependentProject } from "test-utils";
 
@@ -105,7 +103,7 @@ describe("transformer", () => {
           tsErrorTest(
             `jest.mock<boolean>("");`,
             "Unsupported usage of type argument for jest.mock",
-            [unsupportedTypeArgumentDiagnosticCode],
+            [10000],
           );
         });
 
@@ -113,7 +111,7 @@ describe("transformer", () => {
           tsErrorTest(
             `jest.mock("");`,
             "jest.mock is not providing a type argument for transformation to moduleName argument",
-            [jestMissingTypeArgumentDiagnosticCode],
+            [1001],
           );
         });
       });

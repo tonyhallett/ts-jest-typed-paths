@@ -6,9 +6,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "node ../../scripts/build-package.js"
-  },
   "dependencies": {
     "ts-transform-to-module-name": "1.0.0"
   },
