@@ -13,7 +13,7 @@ export default function createTarballs(packages: string[], tarballDir?: string) 
     execSync(cmd, { cwd, stdio: "inherit" });
   }
 
-  run("npm run build");
+  run("npm run build-installable");
 
   for (const pkg of packages) {
     run(`npm pack -w packages/${pkg}`);

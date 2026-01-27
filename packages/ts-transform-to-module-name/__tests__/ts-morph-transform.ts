@@ -1,16 +1,14 @@
-import Ts from "typescript";
 import * as Path from "path";
-import { createProject, Project } from "@ts-morph/bootstrap";
-
+import { createProject, Project, ts } from "@ts-morph/bootstrap";
 /*
   code taken from ts-transformer-testing-library
   Updated for later @ts-morph/bootstrap
 */
 
-export type TransformerFn = (program: Ts.Program) => Ts.TransformerFactory<Ts.SourceFile>;
+export type TransformerFn = (program: ts.Program) => ts.TransformerFactory<ts.SourceFile>;
 
 export class Transformer {
-  private compilerOptions: Ts.CompilerOptions = {};
+  private compilerOptions: ts.CompilerOptions = {};
   private filePath?: string;
   private file?: File;
   private mocks: ModuleDescriptor[] = [];
@@ -42,7 +40,7 @@ export class Transformer {
     return this;
   }
 
-  public setCompilerOptions(options: Ts.CompilerOptions): Transformer {
+  public setCompilerOptions(options: ts.CompilerOptions): Transformer {
     this.compilerOptions = options;
 
     if (this.project) {
@@ -117,7 +115,7 @@ export interface TransformFileOptions {
   /* Mock modules to add to the project context. */
   mocks?: ReadonlyArray<ModuleDescriptor>;
   /* Options to pass to tsc */
-  compilerOptions?: Partial<Ts.CompilerOptions>;
+  compilerOptions?: Partial<ts.CompilerOptions>;
   /* TypeScript transform to apply to the compilation */
   transforms: TransformerFn[];
 }
@@ -214,29 +212,29 @@ export const transformFileAsync = async (
   return String(project.fileSystem.readFileSync(fileArtifactPath));
 };
 
-export function getCompilerOptions(options?: Partial<Ts.CompilerOptions>): Ts.CompilerOptions {
+export function getCompilerOptions(options?: Partial<ts.CompilerOptions>): ts.CompilerOptions {
   return {
     outDir: "/dist",
     lib: ["/node_modules/typescript/lib/lib.esnext.full.d.ts"],
-    module: Ts.ModuleKind.ESNext,
-    moduleResolution: Ts.ModuleResolutionKind.NodeJs,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
     resolveJsonModule: true,
     skipLibCheck: true,
-    target: Ts.ScriptTarget.ESNext,
+    target: ts.ScriptTarget.ESNext,
     types: [],
     noEmitOnError: true,
-    jsx: Ts.JsxEmit.Preserve,
+    jsx: ts.JsxEmit.Preserve,
     ...(options || {}),
   };
 }
 
-function getFileArtifactPath(file: Ts.SourceFile, program: Ts.Program): string | undefined {
+function getFileArtifactPath(file: ts.SourceFile, program: ts.Program): string | undefined {
   const options = program.getCompilerOptions();
   const extname = Path.extname(file.fileName);
   const basename = Path.basename(file.fileName, extname);
 
   const artifactExtname =
-    extname === ".tsx" && options.jsx === Ts.JsxEmit.Preserve ? ".jsx" : ".js";
+    extname === ".tsx" && options.jsx === ts.JsxEmit.Preserve ? ".jsx" : ".js";
 
   return Path.join(options.outDir || ".", `${basename}${artifactExtname}`);
 }

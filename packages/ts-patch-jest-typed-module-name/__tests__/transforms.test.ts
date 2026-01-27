@@ -8,7 +8,7 @@ import createTarballs from "./createTarballs";
 
 describe("transformer", () => {
   let tempDependentProject: TempDependentProject;
-  let tarballDir: string;
+  let tarballDir: string | undefined;
   const packagesInstallOrder = [
     "ts-transform-to-module-name",
     "jest-typed-module-name",
@@ -19,6 +19,9 @@ describe("transformer", () => {
   });
 
   beforeEach(() => {
+    if (tarballDir === undefined) {
+      throw new Error("tarballDir is undefined in beforeEach");
+    }
     const packageJsonContent = {
       scripts: {
         tspatch: "tspc",
@@ -33,21 +36,23 @@ describe("transformer", () => {
   });
 
   afterEach(() => {
-    tempDependentProject.cleanUp();
+    tempDependentProject?.cleanUp();
   });
 
   afterAll(() => {
-    fs.rmSync(tarballDir, { recursive: true });
+    if (tarballDir) {
+      fs.rmSync(tarballDir, { recursive: true });
+    }
   });
 
   function installTarballs() {
-    const files = fs.readdirSync(tarballDir);
+    const files = fs.readdirSync(tarballDir!);
     for (const pkg of packagesInstallOrder) {
       const tarballFileName = files.find((file) => file.startsWith(pkg) && file.endsWith(".tgz"));
       if (!tarballFileName) {
-        throw new Error(`Could not find tarball for package ${pkg} in ${tarballDir}`);
+        throw new Error(`Could not find tarball for package ${pkg} in ${tarballDir!}`);
       }
-      const tarballPath = path.join(tarballDir, tarballFileName);
+      const tarballPath = path.join(tarballDir!, tarballFileName);
       tempDependentProject.npmInstall(tarballPath);
     }
   }

@@ -133,7 +133,7 @@ describe("transform replaces transformToModuleName with relative path of the gen
         raiseDiagnostic,
         undefined,
         moduleNameIfExportsTransformToModuleName,
-      );
+      ) as unknown as ts.TransformerFactory<ts.SourceFile>;
     };
 
     return transformStringAsync(codeToTransform, {
