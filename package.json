@@ -11,13 +11,13 @@
     "format:check": "prettier --check '**/*.{ts,tsx,js,json,md}'",
     "build-installable": "node ./scripts/build-installable-packages.js",
     "build-all": "node ./scripts/build-all.js",
-    "prepack": "npm run build-installable",
+    "prepack": "npm run build-installable && npm run generate-jest-readmes",
+    "generate-jest-readmes": "npm run generate-readmes --workspace=jest-readmes-generator",
     "pack": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" scripts/pack-workspace.ts",
     "prepare": "husky",
     "test": "npm run test --workspaces --if-present",
     "test-versions": "npm run versions-test --workspace=ts-jest-integration-test",
-    "test-complete": "npm run test && npm run test-versions",
-    "generate-readmes": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" scripts/generate-jest-readmes.ts"
+    "test-complete": "npm run test && npm run test-versions"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

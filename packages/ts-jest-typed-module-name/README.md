@@ -33,7 +33,7 @@ unmock
 
 unstable_unmockModule
 
-## example
+## Example Usage
 
 [ts-jest-integration-test](../ts-jest-integration-test/__tests__/test.test.ts)
 
@@ -41,7 +41,6 @@ unstable_unmockModule
 import toTest from "../src/to-test";
 import dependency from "../src/dependency";
 import ttmn from "ts-jest-typed-module-name";
-
 jest.mock<typeof dependency>("");
 
 describe("transformer", () => {
@@ -56,21 +55,18 @@ describe("transformer", () => {
 });
 ```
 
-** transformed to **
+## Transformed Code
 
 ```ts
 import toTest from "../src/to-test";
 import dependency from "../src/dependency";
 import ttmn from "ts-jest-typed-module-name";
-
-jest.mock<typeof dependency>("../src/dependency");
-
+jest.mock("../src/dependency");
 describe("transformer", () => {
   it("should transform jest.mock", () => {
     toTest();
     expect(dependency).toHaveBeenCalled();
   });
-
   it("should transformToModuleName", () => {
     expect("../src/dependency").toBe("../src/dependency");
   });

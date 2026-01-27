@@ -33,15 +33,14 @@ unmock
 
 unstable_unmockModule
 
-## example
+## Example Usage
 
-[ts-jest-integration-test](../ts-jest-integration-test/__tests__/test.test.ts)
+[ts-patch-integration-test](../ts-patch-integration-test/src/test.test.ts)
 
 ```ts
-import toTest from "../src/to-test";
-import dependency from "../src/dependency";
+import toTest from "./to-test";
+import dependency from "./dependency";
 import ttmn from "ts-patch-jest-typed-module-name";
-
 jest.mock<typeof dependency>("");
 
 describe("transformer", () => {
@@ -51,28 +50,25 @@ describe("transformer", () => {
   });
 
   it("should transformToModuleName", () => {
-    expect(ttmn<typeof dependency>()).toBe("../src/dependency");
+    expect(ttmn<typeof dependency>()).toBe("./dependency");
   });
 });
 ```
 
-** transformed to **
+## Transformed Code
 
 ```ts
-import toTest from "../src/to-test";
-import dependency from "../src/dependency";
-import ttmn from "ts-jest-typed-module-name";
-
-jest.mock<typeof dependency>("../src/dependency");
-
+import toTest from "./to-test";
+import dependency from "./dependency";
+import ttmn from "ts-patch-jest-typed-module-name";
+jest.mock("./dependency");
 describe("transformer", () => {
   it("should transform jest.mock", () => {
     toTest();
     expect(dependency).toHaveBeenCalled();
   });
-
   it("should transformToModuleName", () => {
-    expect("../src/dependency").toBe("../src/dependency");
+    expect(ttmn()).toBe("./dependency");
   });
 });
 ```
@@ -80,6 +76,8 @@ describe("transformer", () => {
 ## Configuring ts-patch
 
 [ts-patch configuration](https://github.com/nonara/ts-patch?tab=readme-ov-file#configuration)
+
+[ts-patch-integration-test tsconfig.json](../ts-patch-integration-test/tsconfig.json)
 
 tsconfig.json
 

@@ -1,9 +1,7 @@
 {
-  "name": "readme-transformed-examples",
+  "name": "jest-readmes-generator",
   "version": "1.0.0",
-  "description": "helper for transforming readme examples",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "description": "generates jest readmes",
   "private": true,
   "scripts": {
     "build": "node ../../scripts/build-package.js",

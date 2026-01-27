@@ -21,7 +21,7 @@ function generateReadmeForPackage(packageName: string) {
   const configuration = readConfig(packageDirectory);
   readme += configuration;
 
-  const outputPath = path.join(packageDirectory, "READMEX.md");
+  const outputPath = path.join(packageDirectory, "README.md");
   fs.writeFileSync(outputPath, readme, "utf-8");
 }
 
