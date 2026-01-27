@@ -16,3 +16,13 @@ Transformer specific packages using functionality of jest-typed-module-name
 [ts-jest-typed-module-name](./packages/ts-jest-typed-module-name/README.md)
 
 [ts-patch-jest-typed-module-name](./packages/ts-patch-jest-typed-module-name/README.md)
+
+## Contributor
+
+From the workspace root
+
+`npm run build-all` will install build version of typescript and build all packages.
+
+`npm run test` ( will install build version of typescript and build all packages ) run jest tests
+
+`npm run test-complete` runs all tests, including testing that transformer works with different versions of typescript ( ensures that typescript peerDependency is correct)
