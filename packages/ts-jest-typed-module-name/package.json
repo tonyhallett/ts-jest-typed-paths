@@ -40,6 +40,9 @@
       "optional": true
     }
   },
+  "jestReadme": {
+    "testPath": "../ts-jest-integration-test/__tests__/test.test.ts"
+  },
   "keywords": [],
   "author": "Tony Hallett",
   "license": "ISC",

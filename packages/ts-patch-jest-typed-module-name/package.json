@@ -40,6 +40,9 @@
     "ts-jest": "^29.2.5",
     "test-utils": "*"
   },
+  "jestReadme": {
+    "testPath": "../ts-patch-integration-test/src/test.test.ts"
+  },
   "keywords": [],
   "author": "Tony Hallett",
   "license": "ISC",

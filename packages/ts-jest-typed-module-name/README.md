@@ -1,4 +1,4 @@
-# ts-jest-typed-moduled-name
+# ts-jest-typed-module-name
 
 No more magic relative paths that have to be updated when file paths change.
 

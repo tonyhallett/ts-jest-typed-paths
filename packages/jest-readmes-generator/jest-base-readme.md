@@ -1,5 +1,3 @@
-# ts-patch-jest-typed-module-name
-
 No more magic relative paths that have to be updated when file paths change.
 
 ## jest tranformable mock methods via generic parameter
@@ -32,65 +30,3 @@ dontMock
 unmock
 
 unstable_unmockModule
-
-## example
-
-[ts-jest-integration-test](../ts-jest-integration-test/__tests__/test.test.ts)
-
-```ts
-import toTest from "../src/to-test";
-import dependency from "../src/dependency";
-import ttmn from "ts-patch-jest-typed-module-name";
-
-jest.mock<typeof dependency>("");
-
-describe("transformer", () => {
-  it("should transform jest.mock", () => {
-    toTest();
-    expect(dependency).toHaveBeenCalled();
-  });
-
-  it("should transformToModuleName", () => {
-    expect(ttmn<typeof dependency>()).toBe("../src/dependency");
-  });
-});
-```
-
-** transformed to **
-
-```ts
-import toTest from "../src/to-test";
-import dependency from "../src/dependency";
-import ttmn from "ts-jest-typed-module-name";
-
-jest.mock<typeof dependency>("../src/dependency");
-
-describe("transformer", () => {
-  it("should transform jest.mock", () => {
-    toTest();
-    expect(dependency).toHaveBeenCalled();
-  });
-
-  it("should transformToModuleName", () => {
-    expect("../src/dependency").toBe("../src/dependency");
-  });
-});
-```
-
-## Configuring ts-patch
-
-[ts-patch configuration](https://github.com/nonara/ts-patch?tab=readme-ov-file#configuration)
-
-tsconfig.json
-
-```json
-    {
-        compilerOptions: {
-            plugins: [{
-                transform: "ts-patch-jest-typed-module-name/transformer",
-            }],
-            //.....
-        },
-        //...
-    };
-```

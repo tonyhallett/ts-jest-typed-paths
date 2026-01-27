@@ -16,7 +16,8 @@
     "prepare": "husky",
     "test": "npm run test --workspaces --if-present",
     "test-versions": "npm run versions-test --workspace=ts-jest-integration-test",
-    "test-complete": "npm run test && npm run test-versions"
+    "test-complete": "npm run test && npm run test-versions",
+    "generate-readmes": "ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" scripts/generate-jest-readmes.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

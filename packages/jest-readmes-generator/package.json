@@ -1,0 +1,12 @@
+{
+  "name": "readme-transformed-examples",
+  "version": "1.0.0",
+  "description": "helper for transforming readme examples",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "node ../../scripts/build-package.js",
+    "generate-readmes": "npm run build && ts-node --compiler-options \"{\\\"module\\\":\\\"NodeNext\\\",\\\"moduleResolution\\\":\\\"NodeNext\\\",\\\"target\\\":\\\"ES2020\\\",\\\"esModuleInterop\\\":true}\" generate-jest-readmes.ts"
+  }
+}
