@@ -11,7 +11,7 @@
     "format:check": "prettier --check '**/*.{ts,tsx,js,json,md}'",
     "build-release": "ts-node  ./scripts/build-release.ts",
     "build-all": "ts-node ./scripts/build-all.ts",
-    "prepack": "npm run build-release && npm run generate-jest-readmes",
+    "prepack": "npm run build-release && npm run check-readmes-generated",
     "generate-jest-readmes": "npm run generate-readmes --workspace=jest-readmes-generator",
     "pack": "ts-node scripts/pack-workspace.ts",
     "prepare": "husky",
