@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 import * as fs from "fs";
-import { factory } from "../ts-jest-typed-module-name/src/transformer";
+import { factory } from "ts-jest-typed-module-name/transformer";
 
 const compilerInstance = {
   configSet: {

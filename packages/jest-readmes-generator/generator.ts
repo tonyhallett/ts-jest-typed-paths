@@ -1,28 +1,34 @@
 import * as fs from "fs";
 import * as path from "path";
 import transpileTest from "./transpile";
+import prettier from "prettier";
 
-const baseReadme = getBaseReadme();
+export const baseReadme = getBaseReadme();
 const packagesDirectory = path.join(__dirname, "..");
 
-generateReadmeForPackage("ts-jest-typed-module-name");
+export async function generateReadmeForPackage(packageName: string) {
+  const { packageDirectory, readmePath } = getReadmePathInfo(packageName);
+  let readme =
+    generatePrefix(packageName, baseReadme) +
+    getExampleUsage(packageDirectory) +
+    readConfig(packageDirectory);
 
-generateReadmeForPackage("ts-patch-jest-typed-module-name");
+  readme = await formatMarkdown(readme, readmePath);
+  return {
+    readmePath,
+    readme,
+  };
+}
 
-function generateReadmeForPackage(packageName: string) {
-  let readme = generatePrefix(packageName, baseReadme);
+export function getReadmePathInfo(packageName: string) {
   const packageDirectory = path.join(packagesDirectory, packageName);
   if (!fs.existsSync(packageDirectory)) {
     throw new Error(`Package directory does not exist: ${packageDirectory}`);
   }
-
-  readme += getExampleUsage(packageDirectory);
-
-  const configuration = readConfig(packageDirectory);
-  readme += configuration;
-
-  const outputPath = path.join(packageDirectory, "README.md");
-  fs.writeFileSync(outputPath, readme, "utf-8");
+  return {
+    packageDirectory,
+    readmePath: path.join(packageDirectory, "README.md"),
+  };
 }
 
 function getExampleUsage(packageDirectory: string) {
@@ -38,7 +44,6 @@ function getExampleUsage(packageDirectory: string) {
   const examplePackageName = examplePathTrimmed.split("/")[0];
   const exampleContent = fs.readFileSync(exampleFullPath, "utf-8");
   return `
-  
 ## Example Usage
 
 [${examplePackageName}](../${examplePathTrimmed})
@@ -68,7 +73,7 @@ function readConfig(packageDirectory: string) {
 
 function generatePrefix(packageName: string, baseReadme: string) {
   return `# ${packageName}
-    
+
 ${baseReadme}`;
 }
 
@@ -81,4 +86,13 @@ function fencedCodeBlock(code: string, language: string = "ts"): string {
   return `\`\`\`${language}
 ${code}
 \`\`\``;
+}
+
+async function formatMarkdown(content: string, filePath: string): Promise<string> {
+  const config = await prettier.resolveConfig(filePath);
+
+  return prettier.format(content, {
+    ...config,
+    filepath: filePath, // critical: enables markdown parser + plugins
+  });
 }

@@ -5,9 +5,12 @@
   "private": true,
   "scripts": {
     "build": "ts-node ../../scripts/build-package.ts",
-    "generate-readmes": "npm run build && ts-node generate-jest-readmes.ts"
+    "generate-readmes": "npm run build && ts-node generate-readmes.ts",
+    "check-readmes-generated": "npm run build && ts-node check-readmes-generated.ts"
   },
   "devDependencies": {
+    "prettier": "^3.8.1",
+    "ts-jest-typed-module-name": "*",
     "ts-node": "^10.9.2"
   }
 }

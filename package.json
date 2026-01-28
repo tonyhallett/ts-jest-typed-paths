@@ -15,6 +15,7 @@
     "generate-jest-readmes": "npm run generate-readmes --workspace=jest-readmes-generator",
     "pack": "ts-node scripts/pack-workspace.ts",
     "prepare": "husky",
+    "pre-commit-check-readmes": "npm run check-readmes-generated --workspace=jest-readmes-generator -- --fix-command=\"npm run generate-jest-readmes\"",
     "test": "npm run test --workspaces --if-present",
     "test-versions": "npm run versions-test --workspace=ts-jest-integration-test",
     "test-complete": "npm run test && npm run test-versions"
@@ -39,6 +40,9 @@
     ]
   },
   "lint-staged": {
+    "*": [
+      "npm run pre-commit-check-readmes"
+    ],
     "*.{ts,tsx,js,jsx}": [
       "eslint --fix",
       "prettier --write"

@@ -1,4 +1,9 @@
 {
+  "extends": "../../tsconfig.base.json",
   "files": [],
+  "compilerOptions": {
+    "moduleResolution": "Node16",
+    "module": "Node16"
+  },
   "references": [{ "path": "../ts-jest-typed-module-name" }]
 }
