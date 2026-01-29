@@ -21,8 +21,8 @@ Transformer specific packages using functionality of jest-typed-module-name
 
 From the workspace root
 
-`npm run build-all` will install build version of typescript and build all packages.
+`npm install`
 
-`npm run test` ( will install build version of typescript and build all packages ) run jest tests
+`npm run build-all` build all packages.
 
-`npm run test-all` runs all tests, including testing that transformer works with different versions of typescript ( ensures that typescript peerDependency is correct)
+`npm run test` run jest tests
