@@ -2,14 +2,14 @@ import * as ts from "typescript";
 import * as fs from "fs";
 import { factory } from "ts-jest-typed-module-name/transformer";
 
-const compilerInstance = {
-  configSet: {
-    compilerModule: ts,
-  },
-} as unknown as Parameters<typeof factory>[0];
-const tsTransformer: ts.TransformerFactory<ts.SourceFile> = factory(
-  compilerInstance,
-) as unknown as ts.TransformerFactory<ts.SourceFile>;
+function createTransformer() {
+  const compilerInstance = {
+    configSet: {
+      compilerModule: ts,
+    },
+  } as unknown as Parameters<typeof factory>[0];
+  return factory(compilerInstance);
+}
 
 function transpileTest(testPath: string) {
   const content = fs.readFileSync(testPath, "utf8");
@@ -22,7 +22,7 @@ function transpileTest(testPath: string) {
       newLine: ts.NewLineKind.LineFeed,
     },
     transformers: {
-      before: [tsTransformer],
+      before: [createTransformer()],
     },
   });
   return result.outputText;

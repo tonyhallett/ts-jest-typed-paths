@@ -4,7 +4,7 @@
   "description": "generates jest readmes",
   "private": true,
   "scripts": {
-    "build": "ts-node ../../scripts/build-package.ts",
+    "build": "tsc -b",
     "generate-readmes": "npm run build && ts-node generate-readmes.ts",
     "check-readmes-generated": "npm run build && ts-node check-readmes-generated.ts"
   },

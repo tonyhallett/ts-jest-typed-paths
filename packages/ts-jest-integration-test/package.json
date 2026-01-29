@@ -4,7 +4,7 @@
   "description": "integration test",
   "private": true,
   "scripts": {
-    "build": "ts-node ../../scripts/build-package.ts",
+    "build": "tsc -b",
     "pretest": "npm run build",
     "test": "ts-node ./scripts/minimum-ts-peer-dependency-test.ts"
   },

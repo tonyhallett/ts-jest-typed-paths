@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "ts-node ./scripts/build-test.ts",
+    "build": "tsc -b tsconfig.refs.json",
     "pretest": "npm run build",
     "test": "jest"
   },

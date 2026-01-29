@@ -2,10 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "./src",
-    "paths": {
-      "typescript": ["../../typescript-build/node_modules/typescript"]
-    }
+    "rootDir": "./src"
   },
   "include": ["./src"],
   "references": [{ "path": "../ts-transform-to-module-name" }]
