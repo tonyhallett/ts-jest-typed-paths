@@ -1,15 +1,14 @@
 import * as semver from "semver";
 import { execSync } from "child_process";
 import { getSortedValidNonPreReleaseVersions } from "./npm-versions";
-import installVersions from "./npm-install-versions";
+import { installTypescriptVersions } from "test-utils/src";
 
 export function executeJestForTsVersionRange(
   tsSemverRange: string,
-  tsVersionsInstallDir: string,
   jestExecutionArgs?: JestCompilerPathEnvExecutionArgs,
 ) {
   return executeJestForTsVersions(
-    installVersions(getVersionsInRange(tsSemverRange), tsVersionsInstallDir, "typescript"),
+    installTypescriptVersions(getVersionsInRange(tsSemverRange)),
     jestExecutionArgs,
   );
 }

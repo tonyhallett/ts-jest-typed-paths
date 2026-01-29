@@ -6,9 +6,7 @@
   "scripts": {
     "build": "ts-node ../../scripts/build-package.ts",
     "pretest": "npm run build",
-    "test": "jest --no-cache",
-    "pretspeerversionstest": "npm run build",
-    "tspeerversionstest": "ts-node ./scripts/ts-peer-dependency-versions-test"
+    "test": "ts-node ./scripts/minimum-ts-peer-dependency-test.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

@@ -1,8 +1,10 @@
-import fs from "fs";
-import os from "os";
-import path from "path";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import { mkdtempSync } from "fs";
 import { spawnSync } from "child_process";
+import installVersions from "./npm-install-versions";
+import * as semver from "semver";
 
 export interface TempDependentProject {
   testDirectory: string;
@@ -72,4 +74,29 @@ export default class ExportDefault {};
     cleanUp,
     npmInstall,
   };
+}
+
+export function installTypescriptVersions(versions: string[]) {
+  const tsVersionsDir = path.join(__dirname, "..", "ts-versions");
+  return installVersions(versions, tsVersionsDir, "typescript");
+}
+
+function readTypescriptPeerDependency(packageName: string) {
+  const pkgJsonPath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "packages",
+    packageName,
+    "package.json",
+  );
+  const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
+  return pkgJson.peerDependencies.typescript as string;
+}
+
+export function getMinimumTypeScriptVersion(packageName: string) {
+  const typescriptVersion = readTypescriptPeerDependency(packageName);
+  const minVersion = semver.minVersion(typescriptVersion)!;
+  return minVersion.version;
 }
