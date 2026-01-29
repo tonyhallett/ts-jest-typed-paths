@@ -25,4 +25,4 @@ From the workspace root
 
 `npm run test` ( will install build version of typescript and build all packages ) run jest tests
 
-`npm run test-complete` runs all tests, including testing that transformer works with different versions of typescript ( ensures that typescript peerDependency is correct)
+`npm run test-all` runs all tests, including testing that transformer works with different versions of typescript ( ensures that typescript peerDependency is correct)

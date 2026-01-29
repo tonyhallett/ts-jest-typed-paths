@@ -11,14 +11,12 @@
     "format:check": "prettier --check '**/*.{ts,tsx,js,json,md}'",
     "build-release": "ts-node  ./scripts/build-release.ts",
     "build-all": "ts-node ./scripts/build-all.ts",
-    "prepack": "npm run check-readmes-generated && npm run build-release",
+    "prepack": "npm run check-readmes-generated && npm run test && npm run build-release",
     "generate-jest-readmes": "npm run generate-readmes --workspace=jest-readmes-generator",
     "pack": "ts-node scripts/pack-workspace.ts",
     "prepare": "husky",
     "check-readmes-generated": "npm run check-readmes-generated --workspace=jest-readmes-generator -- --fix-command=\"npm run generate-jest-readmes\"",
-    "test": "npm run test --workspaces --if-present",
-    "test-versions": "npm run versions-test --workspace=ts-jest-integration-test",
-    "test-complete": "npm run test && npm run test-versions"
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
