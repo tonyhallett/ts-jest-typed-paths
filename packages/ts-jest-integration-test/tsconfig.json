@@ -1,4 +1,7 @@
 {
   "files": [],
+  "compilerOptions": {
+    "isolatedModules": true
+  },
   "references": [{ "path": "../ts-jest-typed-module-name" }, { "path": "../test-utils" }]
 }
