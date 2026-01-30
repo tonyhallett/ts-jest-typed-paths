@@ -31,7 +31,7 @@ export interface TransformFileOptions {
   transforms: TransformerFn[];
 }
 
-export const transformStringAsync = (
+export const transformStringToJsAsync = (
   source: string,
   options: TransformFileOptions,
 ): Promise<string> => {

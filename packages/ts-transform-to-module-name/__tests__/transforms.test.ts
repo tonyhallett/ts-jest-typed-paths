@@ -1,6 +1,6 @@
 import { ts } from "@ts-morph/bootstrap";
 import { transformToModuleNameFactory } from "ts-transform-to-module-name";
-import { TransformerFn, transformStringAsync } from "./ts-morph-transform";
+import { TransformerFn, transformStringToJsAsync } from "./ts-morph-transform";
 
 type BuiltTs = (typeof transformToModuleNameFactory)["arguments"][0];
 
@@ -136,7 +136,7 @@ describe("transform replaces transformToModuleName with relative path of the gen
       ) as unknown as ts.TransformerFactory<ts.SourceFile>;
     };
 
-    return transformStringAsync(codeToTransform, {
+    return transformStringToJsAsync(codeToTransform, {
       transforms: [transformer],
       sources: [
         {
