@@ -1,8 +1,7 @@
-import * as Path from "path";
 import { createProject, Project, ts } from "@ts-morph/bootstrap";
 /*
   code taken from ts-transformer-testing-library
-  Updated for later @ts-morph/bootstrap
+  Updated for later @ts-morph/bootstrap and improved
 */
 
 export type TransformerFn = (program: ts.Program) => ts.TransformerFactory<ts.SourceFile>;
@@ -162,7 +161,7 @@ export const transformFileAsync = async (
       compilerOptions: getCompilerOptions(options.compilerOptions),
     }));
 
-  project.createSourceFile(file.path, file.contents);
+  const inFile = project.createSourceFile(file.path, file.contents);
 
   (options.sources || []).forEach((source) =>
     project.createSourceFile(source.path, source.contents),
@@ -179,8 +178,8 @@ export const transformFileAsync = async (
 
   const program = project.createProgram();
 
-  const { emitSkipped, diagnostics } = program.emit(
-    program.getSourceFile(file.path),
+  const { emitSkipped, diagnostics, emittedFiles } = program.emit(
+    inFile,
     undefined,
     undefined,
     false,
@@ -193,23 +192,7 @@ export const transformFileAsync = async (
     throw new Error(project.formatDiagnosticsWithColorAndContext(diagnostics));
   }
 
-  const inFile = program.getSourceFile(file.path);
-
-  if (!inFile) {
-    throw new Error(`Could not get SourceFile for ${file.path}`);
-  }
-
-  if (!inFile) {
-    throw new Error(`Could not determine ArtifactFile for ${file.path}`);
-  }
-
-  const fileArtifactPath = getFileArtifactPath(inFile, program);
-
-  if (!fileArtifactPath) {
-    throw new Error(`Could not determine fileArtifactPath for ${file.path}`);
-  }
-
-  return String(project.fileSystem.readFileSync(fileArtifactPath));
+  return project.fileSystem.readFileSync(emittedFiles![0]);
 };
 
 export function getCompilerOptions(options?: Partial<ts.CompilerOptions>): ts.CompilerOptions {
@@ -225,18 +208,8 @@ export function getCompilerOptions(options?: Partial<ts.CompilerOptions>): ts.Co
     noEmitOnError: true,
     jsx: ts.JsxEmit.Preserve,
     ...(options || {}),
+    listEmittedFiles: true,
   };
-}
-
-function getFileArtifactPath(file: ts.SourceFile, program: ts.Program): string | undefined {
-  const options = program.getCompilerOptions();
-  const extname = Path.extname(file.fileName);
-  const basename = Path.basename(file.fileName, extname);
-
-  const artifactExtname =
-    extname === ".tsx" && options.jsx === ts.JsxEmit.Preserve ? ".jsx" : ".js";
-
-  return Path.join(options.outDir || ".", `${basename}${artifactExtname}`);
 }
 
 export const transformStringAsync = (
