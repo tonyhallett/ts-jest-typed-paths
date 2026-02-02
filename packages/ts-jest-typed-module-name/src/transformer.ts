@@ -2,6 +2,7 @@ import type { AstTransformerDesc, TsCompilerInstance } from "ts-jest";
 import { createJestFactory } from "jest-typed-module-name";
 
 export const factory = (tsCompiler: TsCompilerInstance) => {
+  // if needed the program can be accessed via tsCompiler.program
   const configSet = tsCompiler.configSet;
   const ts = configSet.compilerModule;
   const jestFactory = createJestFactory("ts-jest-typed-module-name");
