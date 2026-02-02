@@ -21,8 +21,12 @@ Transformer specific packages using functionality of jest-typed-module-name
 
 From the workspace root
 
+Setup
+
 `npm install`
 
-`npm run build-all` build all packages.
+`npm run build-dependencies`
+
+Testing
 
 `npm run test` run jest tests
