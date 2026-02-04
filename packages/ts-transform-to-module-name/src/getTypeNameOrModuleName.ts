@@ -1,6 +1,6 @@
 import { TypeNode } from "typescript";
-import { getTypeAliasModuleName } from "./helpers";
 import { TTypeScript } from "./ts";
+import getTypeAliasModuleName from "./getTypeAliasModuleName";
 
 interface TypeNameOrModuleNameBase {
   start: number;
@@ -12,7 +12,7 @@ interface UnsupportedTypeNameOrModuleNameBase extends TypeNameOrModuleNameBase {
   supported: false;
 }
 
-interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
+export interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
   typeNameOrModuleName: string;
   isTypeName: boolean;
   supported: true;

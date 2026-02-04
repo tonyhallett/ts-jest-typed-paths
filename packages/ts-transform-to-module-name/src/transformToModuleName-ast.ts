@@ -1,4 +1,4 @@
-import { CallExpression, ImportDeclaration, Node } from "typescript";
+import { CallExpression, ImportDeclaration, Node, TypeNode } from "typescript";
 import { transformToModuleName } from "./transformToModuleName";
 import { TTypeScript } from "./ts";
 
@@ -7,7 +7,8 @@ export const getTransformToModuleNameName = (ts: TTypeScript, statement: ImportD
     const namedBindings = statement.importClause.namedBindings;
     if (namedBindings) {
       if (ts.isNamedImports(namedBindings)) {
-        const importSpecifier = namedBindings.elements.find((element) => {
+        const namedImports = namedBindings;
+        const importSpecifier = namedImports.elements.find((element) => {
           const compare = element.propertyName ?? element.name;
           return compare.text === transformToModuleName.name;
         });
@@ -21,32 +22,42 @@ export const getTransformToModuleNameName = (ts: TTypeScript, statement: ImportD
   }
 };
 
-const getTransformToPathTypeArgument = (
+type TransformToModuleNameTypeNode = TypeNode | undefined;
+
+const getTransformToModuleNameTypeNode = (
   ts: TTypeScript,
   node: CallExpression,
-  transformToPathName: string,
-) => {
+  transformToModuleNameName: string,
+): TransformToModuleNameTypeNode => {
   if (
     node.arguments.length === 0 &&
     ts.isIdentifier(node.expression) &&
-    node.expression.text === transformToPathName &&
+    node.expression.text === transformToModuleNameName &&
     node.typeArguments?.length === 1
   ) {
     return node.typeArguments[0];
   }
 };
 
-export const tryGetTransformToPathTypeArgument = (
+export const isTransformToModuleNameCallExpression = (
   ts: TTypeScript,
   node: Node,
-  transformToPathName: string | undefined,
+  transformToModuleNameName: string | undefined,
 ) => {
-  if (transformToPathName === undefined) {
+  return tryGetTransformToModuleNameTypeNode(ts, node, transformToModuleNameName) !== undefined;
+};
+
+export const tryGetTransformToModuleNameTypeNode = (
+  ts: TTypeScript,
+  node: Node,
+  transformToModuleNameName: string | undefined,
+): TransformToModuleNameTypeNode => {
+  if (transformToModuleNameName === undefined) {
     return undefined;
   }
 
   if (ts.isCallExpression(node)) {
-    return getTransformToPathTypeArgument(ts, node, transformToPathName);
+    return getTransformToModuleNameTypeNode(ts, node, transformToModuleNameName);
   }
   return undefined;
 };

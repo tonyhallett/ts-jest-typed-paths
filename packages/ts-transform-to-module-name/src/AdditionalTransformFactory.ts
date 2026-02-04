@@ -9,10 +9,7 @@ import {
 import { TTypeScript } from "./ts";
 
 export type RaiseDiagnostic = (diagnostic: Diagnostic) => void;
-export type GetModuleNameFromTypeArgument = (
-  typeArgument: TypeNode,
-  member: string,
-) => string | undefined;
+export type GetModuleNameFromTypeNode = (typeNode: TypeNode, member: string) => string | undefined;
 export type IsTransformToModuleNameCallExpression = (expression: Expression) => boolean;
 export type AdditionalTransform = (node: Node) => Node | undefined;
 
@@ -20,7 +17,7 @@ export type AdditionalTransformFactory = (
   sourceFile: SourceFile,
   context: TransformationContext,
   ts: TTypeScript,
-  getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument,
+  getModuleNameFromTypeNode: GetModuleNameFromTypeNode,
   isTransformToModuleNameCallExpression: IsTransformToModuleNameCallExpression,
   raiseDiagnostic: RaiseDiagnostic,
 ) => AdditionalTransform;

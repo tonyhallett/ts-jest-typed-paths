@@ -1,5 +1,5 @@
 import { ImportDeclaration, SourceFile } from "typescript";
-import { getTypeAliasModuleName } from "./helpers";
+import getTypeAliasModuleName from "./getTypeAliasModuleName";
 import { packageName } from "./package-name";
 import { getTransformToModuleNameName } from "./transformToModuleName-ast";
 import { TTypeScript } from "./ts";
@@ -21,25 +21,26 @@ export class ImportsInfo {
   }
 }
 
-function getImports(
+function addImportsFromImportDeclaration(
   ts: TTypeScript,
   importDeclaration: ImportDeclaration,
   moduleName: string,
   importsInfo: ImportsInfo,
 ) {
-  if (importDeclaration.importClause?.namedBindings) {
-    if (ts.isNamedImports(importDeclaration.importClause.namedBindings)) {
-      const imports = importDeclaration.importClause.namedBindings.elements.map((element) => {
+  const namedBindings = importDeclaration.importClause?.namedBindings;
+  if (namedBindings) {
+    if (ts.isNamedImports(namedBindings)) {
+      const imports = namedBindings.elements.map((element) => {
         return element.name.getText();
       });
       importsInfo.add({
         imports,
         moduleName,
       });
-    }
-    if (ts.isNamespaceImport(importDeclaration.importClause.namedBindings)) {
+    } else {
+      const namespaceImport = namedBindings;
       importsInfo.add({
-        imports: [importDeclaration.importClause.namedBindings.name.getText()],
+        imports: [namespaceImport.name.getText()],
         moduleName,
       });
     }
@@ -53,28 +54,35 @@ function getImports(
   }
 }
 
+type ModuleNameIfExportsTransformToModuleName = string | undefined;
+
+function moduleExportsTransformToModuleName(
+  moduleName: string,
+  moduleNameIfExportsTransformToModuleName: ModuleNameIfExportsTransformToModuleName,
+): boolean {
+  return moduleName === packageName || moduleName === moduleNameIfExportsTransformToModuleName;
+}
+
 export const getImportsInfo = (
   ts: TTypeScript,
   sourceFile: SourceFile,
-  moduleNameIfExportsTransformToModuleName: string | undefined,
+  moduleNameIfExportsTransformToModuleName: ModuleNameIfExportsTransformToModuleName,
 ): ImportsInfo => {
   return sourceFile.statements.reduce((importsInfo, statement) => {
     if (ts.isImportDeclaration(statement)) {
       const moduleSpecifier = statement.moduleSpecifier;
+      // /** If this is not a StringLiteral it will be a grammar error. */
       if (ts.isStringLiteral(moduleSpecifier)) {
         const moduleName = moduleSpecifier.text;
-        if (moduleName === packageName || moduleName === moduleNameIfExportsTransformToModuleName) {
-          const transformToModuleNameName = getTransformToModuleNameName(ts, statement);
-          if (transformToModuleNameName) {
-            importsInfo.transformToModuleNameName = transformToModuleNameName;
-          }
+        if (
+          moduleExportsTransformToModuleName(moduleName, moduleNameIfExportsTransformToModuleName)
+        ) {
+          importsInfo.transformToModuleNameName = getTransformToModuleNameName(ts, statement);
         } else {
-          getImports(ts, statement, moduleName, importsInfo);
+          addImportsFromImportDeclaration(ts, statement, moduleName, importsInfo);
         }
       }
-    }
-
-    if (ts.isTypeAliasDeclaration(statement)) {
+    } else if (ts.isTypeAliasDeclaration(statement)) {
       const moduleName = getTypeAliasModuleName(ts, statement.type);
       if (moduleName !== undefined) {
         importsInfo.add({

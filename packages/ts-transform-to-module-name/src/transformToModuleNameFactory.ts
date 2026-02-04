@@ -1,88 +1,38 @@
-import ts, { SourceFile, TransformationContext, Visitor, TransformerFactory } from "typescript";
+import type { TTypeScript } from "./ts";
+import { SourceFile, TransformationContext, Visitor, TransformerFactory } from "typescript";
+import isSourceFile from "./isSourceFile";
 import {
   AdditionalTransform,
   AdditionalTransformFactory,
-  GetModuleNameFromTypeArgument,
   RaiseDiagnostic,
 } from "./AdditionalTransformFactory";
-import { getUnsupportedTypeArgumentDiagnostic } from "./diagnostics";
-import { ImportsInfo, getImportsInfo } from "./getImportsInfo";
-import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
-import { tryGetTransformToPathTypeArgument } from "./transformToModuleName-ast";
-import { TTypeScript } from "./ts";
-
-const tryReplaceTransformToPathWithModuleName = (
-  ts: TTypeScript,
-  node: ts.Node,
-  transformToPathName: string | undefined,
-  getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument,
-): ts.StringLiteral | undefined => {
-  const transformToPathTypeArgument = tryGetTransformToPathTypeArgument(
-    ts,
-    node,
-    transformToPathName,
-  );
-  if (transformToPathTypeArgument) {
-    const moduleName = getModuleNameFromTypeArgument(
-      transformToPathTypeArgument,
-      transformToPathName!,
-    );
-
-    if (moduleName) {
-      return ts.factory.createStringLiteral(moduleName);
-    }
-  }
-
-  return undefined;
-};
+import createRaiseUnsupportedTypeNodeDiagnostic from "./createRaiseUnsupportedTypeNodeDiagnostic";
+import { type ImportsInfo, getImportsInfo } from "./getImportsInfo";
+import { isTransformToModuleNameCallExpression } from "./transformToModuleName-ast";
+import tryTransformToModuleName from "./tryTransformToModuleName";
+import createGetModuleNameFromTypeNode from "./createGetModuleNameFromTypeNode";
 
 export const transformToModuleNameFactory = (
   ts: TTypeScript,
   raiseDiagnostic: RaiseDiagnostic,
   additionalTransformFactory?: AdditionalTransformFactory,
   moduleNameIfExportsTransformToModuleName?: string,
-) => {
+): TransformerFactory<SourceFile> => {
   const transform = (
     sourceFile: SourceFile,
     context: TransformationContext,
     importsInfo: ImportsInfo,
   ): SourceFile => {
-    const getModuleNameFromTypeArgument: GetModuleNameFromTypeArgument = (typeArgument, member) => {
-      const typeNameOrModuleName = getTypeNameOrModuleName(ts, typeArgument);
-
-      const doRaiseDiagnostic = (startLength: { start: number; length: number }) => {
-        /*
-          for built in diagonstics see typescript.js
-          var Diagnostics = {
-          
-        */
-        raiseDiagnostic(
-          getUnsupportedTypeArgumentDiagnostic(
-            ts,
-            sourceFile,
-            startLength.start,
-            startLength.length,
-            member,
-          ),
-        );
-      };
-
-      if (!typeNameOrModuleName.supported) {
-        doRaiseDiagnostic(typeNameOrModuleName);
-      } else {
-        let moduleName: string | undefined;
-        if (typeNameOrModuleName.isTypeName) {
-          moduleName = importsInfo.getModuleName(typeNameOrModuleName.typeNameOrModuleName);
-        } else {
-          moduleName = typeNameOrModuleName.typeNameOrModuleName;
-        }
-        if (moduleName !== undefined) {
-          return moduleName;
-        } else {
-          doRaiseDiagnostic(typeNameOrModuleName);
-        }
-      }
-    };
+    const raiseUnsupportedTypeNodeDiagnostic = createRaiseUnsupportedTypeNodeDiagnostic(
+      sourceFile,
+      ts,
+      raiseDiagnostic,
+    );
+    const getModuleNameFromTypeNode = createGetModuleNameFromTypeNode(
+      ts,
+      importsInfo,
+      raiseUnsupportedTypeNodeDiagnostic,
+    );
 
     let additionalTransform: AdditionalTransform = (node) => node;
     if (additionalTransformFactory) {
@@ -90,24 +40,24 @@ export const transformToModuleNameFactory = (
         sourceFile,
         context,
         ts,
-        getModuleNameFromTypeArgument,
+        getModuleNameFromTypeNode,
         (expression) =>
-          tryGetTransformToPathTypeArgument(
+          isTransformToModuleNameCallExpression(
             ts,
             expression,
             importsInfo.transformToModuleNameName,
-          ) !== undefined,
+          ),
         raiseDiagnostic,
       );
     }
 
     function createVisitor(ctx: TransformationContext) {
       const visitor: Visitor = (node) => {
-        const replaced = tryReplaceTransformToPathWithModuleName(
+        const replaced = tryTransformToModuleName(
           ts,
           node,
           importsInfo.transformToModuleNameName,
-          getModuleNameFromTypeArgument,
+          getModuleNameFromTypeNode,
         );
         if (replaced) {
           return replaced;
@@ -125,10 +75,6 @@ export const transformToModuleNameFactory = (
 
       return visitor;
     }
-
-    const isSourceFile = (node: ts.Node): node is ts.SourceFile => {
-      return ts.isSourceFile(node);
-    };
 
     return ts.visitNode(sourceFile, createVisitor(context), isSourceFile)!;
   };

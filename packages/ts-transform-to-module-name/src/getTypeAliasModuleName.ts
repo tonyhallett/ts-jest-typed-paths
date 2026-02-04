@@ -3,7 +3,7 @@ import { TTypeScript } from "./ts";
 
 const replaceQuotes = (input: string) => input.replace("'", "").replace('"', "");
 
-export function getTypeAliasModuleName(ts: TTypeScript, type: TypeNode) {
+function getTypeAliasModuleName(ts: TTypeScript, type: TypeNode) {
   if (
     ts.isImportTypeNode(type) &&
     ts.isLiteralTypeNode(type.argument) &&
@@ -12,3 +12,5 @@ export function getTypeAliasModuleName(ts: TTypeScript, type: TypeNode) {
     return replaceQuotes(type.argument.literal.text);
   }
 }
+
+export default getTypeAliasModuleName;
