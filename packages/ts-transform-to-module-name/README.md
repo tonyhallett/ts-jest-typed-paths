@@ -28,7 +28,7 @@ const transformToModuleNameFactory = (
 
 ```
 
-The getModuleNameFromTypeNode is the logic used to provide the module name string. This is what is used to transform `transformToModuleName<T>()`.
+The getModuleNameFromTypeNode is the logic used to provide the module name string. This is what is used to transform `transformToModuleName<T>()`. The member argument will be used for diagnostics if transformation cannot be performed.
 To determine if a node is `transformToModuleName<T>()` invoke isTransformToModuleNameCallExpression.
 
 ```ts
