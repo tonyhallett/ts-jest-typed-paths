@@ -8,7 +8,7 @@ import {
 import getImportsInfo from "./getImportsInfo";
 import transform from "./transform";
 
-export const transformToModuleNameFactory = (
+const transformToModuleNameFactory = (
   ts: TTypeScript,
   raiseDiagnostic: RaiseDiagnostic,
   additionalTransformFactory?: AdditionalTransformFactory,
@@ -42,3 +42,5 @@ export const transformToModuleNameFactory = (
 
   return transformerFactory;
 };
+
+export default transformToModuleNameFactory;
