@@ -47,3 +47,36 @@ export type AdditionalTransformFactory = (
   raiseDiagnostic: RaiseDiagnostic,
 ) => AdditionalTransform;
 ```
+
+## How it works
+
+1. **It reads** the import declarations, import equals declarations and type alias declarations.
+   From each it collects the module name and any names that could be referenced ( by a TypeReferenceNode ) as well as the name of the transformToModuleName marker function.
+
+   [tests - getImportsInfo](__tests__\unit.test.ts)
+
+2. It then initializes the additionalTransformFactory if provided.
+
+3. It then visits each node, looking to transform transformToModuleName and if not transformed allows the additional transform to transform.
+
+The additionalTransformFactory is provided two functions
+
+isTransformToModuleNameCallExpression allows for determining if the node can be ignored.
+
+**getModuleNameFromTypeNode** looks at the generic type, and collects the type name or module name
+based upon the ast type of the generic type.
+
+[tests - getTypeNameOrModuleName](__tests__\unit.test.ts)
+
+Type references and type queries will provide the type name to be looked up from what was collected in 1.
+
+Type reference :
+`<X>` link to test
+
+Type queries:
+`<typeof ...>`
+
+Type imports provide the module name directly.
+`typeof import('../mod')`
+
+[]

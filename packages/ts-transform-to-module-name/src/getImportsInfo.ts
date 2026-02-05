@@ -7,7 +7,7 @@ import { SourceFileTs } from "./common-types";
 
 export interface ImportInfo {
   moduleName: string;
-  imports: string[];
+  names: string[];
 }
 
 export class ImportsInfo {
@@ -17,8 +17,8 @@ export class ImportsInfo {
   }
   transformToModuleNameName: string | undefined;
 
-  getModuleName($import: string) {
-    return this.imports.find((importInfo) => importInfo.imports.includes($import))?.moduleName;
+  getModuleName(name: string) {
+    return this.imports.find((importInfo) => importInfo.names.includes(name))?.moduleName;
   }
 }
 
@@ -39,13 +39,13 @@ function addImportsFromImportDeclaration(
         return importSpecifier.name.text;
       });
       importsInfo.add({
-        imports,
+        names: imports,
         moduleName,
       });
     } else {
       const namespaceImport = namedBindings;
       importsInfo.add({
-        imports: [namespaceImport.name.text],
+        names: [namespaceImport.name.text],
         moduleName,
       });
     }
@@ -54,7 +54,7 @@ function addImportsFromImportDeclaration(
   // this is default export
   if (importDeclaration.importClause?.name) {
     importsInfo.add({
-      imports: [importDeclaration.importClause.name.text],
+      names: [importDeclaration.importClause.name.text],
       moduleName,
     });
   }
@@ -92,7 +92,7 @@ const getImportsInfo = (
       const moduleName = tryGetImportTypeNodeModuleName(ts, statement.type);
       if (moduleName !== undefined) {
         importsInfo.add({
-          imports: [statement.name.text],
+          names: [statement.name.text],
           moduleName,
         });
       }
@@ -102,7 +102,7 @@ const getImportsInfo = (
         const expression = moduleReference.expression;
         if (ts.isStringLiteral(expression)) {
           const moduleName = expression.text;
-          importsInfo.add({ imports: [statement.name.text], moduleName });
+          importsInfo.add({ names: [statement.name.text], moduleName });
         }
       }
     }
