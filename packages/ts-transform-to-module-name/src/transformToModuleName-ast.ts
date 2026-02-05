@@ -1,5 +1,5 @@
 import { CallExpression, ImportDeclaration, Node, TypeNode } from "typescript";
-import { transformToModuleName } from "./transformToModuleName";
+import transformToModuleName from "./transformToModuleName";
 import { TTypeScript } from "./ts";
 
 export const getTransformToModuleNameName = (ts: TTypeScript, statement: ImportDeclaration) => {
