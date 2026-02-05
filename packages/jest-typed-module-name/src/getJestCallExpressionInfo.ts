@@ -1,4 +1,10 @@
-import { CallExpression, Expression, PropertyAccessExpression, TypeNode } from "typescript";
+import {
+  CallExpression,
+  Expression,
+  Identifier,
+  PropertyAccessExpression,
+  TypeNode,
+} from "typescript";
 import { TTypeScript } from "./ts";
 
 /*
@@ -54,33 +60,65 @@ export interface JestCallExpressionInfo {
   length: number;
 }
 
-export const getJestCallExpressionInfo = (
-  ts: TTypeScript,
-  callExpression: CallExpression,
-): JestCallExpressionInfo | undefined => {
+function hasRequiredShape(callExpression: CallExpression) {
   const callArguments = callExpression.arguments;
   const numTypeArguments = callExpression.typeArguments ? callExpression.typeArguments.length : 0;
   if (numTypeArguments > 1 || callArguments.length === 0) {
-    return;
+    return false;
   }
-  const expression = callExpression.expression;
-  if (ts.isPropertyAccessExpression(expression)) {
-    if (
-      !(ts.isIdentifier(expression.name) && jestPropertyIdentifiers.includes(expression.name.text))
-    ) {
-      return undefined;
-    }
-    const methodName = expression.name.text;
-    if (hasJestRootPropertyAccessExpression(ts, expression)) {
-      const end = callExpression.end;
-      const start = expression.name.getStart();
-      return {
-        typeArgument: callExpression.typeArguments?.[0],
-        methodName,
-        firstArgument: callArguments[0],
-        start,
-        length: end - start,
-      };
-    }
+  return true;
+}
+
+interface JestPropertyInfo {
+  methodName: Identifier;
+  expression: PropertyAccessExpression;
+}
+
+function getPotentialJestPropertyInfo(
+  ts: TTypeScript,
+  expression: Expression,
+): JestPropertyInfo | undefined {
+  if (
+    ts.isPropertyAccessExpression(expression) &&
+    ts.isIdentifier(expression.name) &&
+    jestPropertyIdentifiers.includes(expression.name.text)
+  ) {
+    return {
+      methodName: expression.name,
+      expression,
+    };
+  }
+  return undefined;
+}
+
+const createJestCallExpressionInfo = (callExpression: CallExpression, methodName: Identifier) => {
+  const end = callExpression.end;
+  const start = methodName.getStart();
+  return {
+    firstArgument: callExpression.arguments[0],
+    typeArgument: callExpression.typeArguments?.[0],
+    methodName: methodName.text,
+    start,
+    length: end - start,
+  };
+};
+
+const getJestCallExpressionInfo = (
+  ts: TTypeScript,
+  callExpression: CallExpression,
+): JestCallExpressionInfo | undefined => {
+  if (!hasRequiredShape(callExpression)) {
+    return undefined;
+  }
+
+  const jestPropertyInfo = getPotentialJestPropertyInfo(ts, callExpression.expression);
+  if (!jestPropertyInfo) {
+    return undefined;
+  }
+
+  if (hasJestRootPropertyAccessExpression(ts, jestPropertyInfo.expression)) {
+    return createJestCallExpressionInfo(callExpression, jestPropertyInfo.methodName);
   }
 };
+
+export default getJestCallExpressionInfo;

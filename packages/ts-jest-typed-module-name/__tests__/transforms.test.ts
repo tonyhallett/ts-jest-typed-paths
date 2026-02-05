@@ -102,7 +102,7 @@ describe("transformer", () => {
         it("should error for unsupported type argument", () => {
           tsErrorTest(
             `jest.mock<boolean>("");`,
-            "Unsupported usage of type argument for jest.mock",
+            "Unsupported usage of type argument for mock",
             [10000],
           );
         });

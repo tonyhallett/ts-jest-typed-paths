@@ -1,25 +1,23 @@
+import type { TTypeScript } from "./ts";
+import type { CallExpression, Diagnostic, Node, TypeNode } from "typescript";
 import {
-  AdditionalTransformFactory,
+  type AdditionalTransformFactory,
   transformToModuleNameFactory,
   transformToModuleName,
 } from "ts-transform-to-module-name";
-import { getJestCallExpressionInfo, JestCallExpressionInfo } from "./jest-ast";
-import { CallExpression, Diagnostic } from "typescript";
-import { TTypeScript } from "./ts";
-
-const updateJestMethodCallWithPath = (
-  ts: TTypeScript,
-  node: CallExpression,
-  moduleName: string,
-) => {
-  return ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
-    ts.factory.createStringLiteral(moduleName),
-    ...node.arguments.slice(1),
-  ]);
-};
+import getJestCallExpressionInfo, {
+  type JestCallExpressionInfo,
+} from "./getJestCallExpressionInfo";
+import updateJestMethodCallWithModuleName from "./updateJestMethodCallWithModuleName";
 
 // todo
 export const jestMissingTypeArgumentDiagnosticCode = 1001;
+
+interface JestTransformNodeInfo {
+  typeNode: TypeNode;
+  methodName: string;
+  callExpression: CallExpression;
+}
 
 const jestTransformFactory: AdditionalTransformFactory = (
   sourceFileContext,
@@ -28,33 +26,16 @@ const jestTransformFactory: AdditionalTransformFactory = (
   raiseDiagnostic,
 ) => {
   const { ts, sourceFile } = sourceFileContext;
-  const warnForMissingTypeArgument = (jestCallExpressionInfo: JestCallExpressionInfo) => {
-    // could look at the moduleName argument to see if is empty string
-    raiseDiagnostic({
-      /* 
-        note that a Suggestion category will fail
-        typescript.js
-        Debug.fail("Should never get an Info diagnostic on the command line.")
-      */
-      category: ts.DiagnosticCategory.Warning, // todo use options for category,
-      code: jestMissingTypeArgumentDiagnosticCode,
-      file: sourceFile,
-      start: jestCallExpressionInfo.start,
-      length: jestCallExpressionInfo.length,
-      messageText: `jest method ${jestCallExpressionInfo.methodName} is not providing a type argument for transformation to moduleName argument`,
-    });
-  };
 
-  return (node) => {
+  const shouldTransform = (node: Node): JestTransformNodeInfo | undefined => {
     if (!ts.isCallExpression(node)) {
-      return node;
+      return undefined;
     }
 
     const jestCallExpressionInfo = getJestCallExpressionInfo(ts, node);
     if (jestCallExpressionInfo === undefined) {
-      return node;
+      return undefined;
     }
-
     const firstArgumentIsTransformToModuleName = isTransformToModuleNameCallExpression(
       jestCallExpressionInfo.firstArgument,
     );
@@ -63,21 +44,55 @@ const jestTransformFactory: AdditionalTransformFactory = (
       if (!firstArgumentIsTransformToModuleName) {
         warnForMissingTypeArgument(jestCallExpressionInfo);
       }
-      return node;
+      return undefined;
     }
 
     // do not transform if first argument is transformToModuleName
     if (firstArgumentIsTransformToModuleName) {
+      return undefined;
+    }
+
+    return {
+      typeNode: jestCallExpressionInfo.typeArgument,
+      methodName: jestCallExpressionInfo.methodName,
+      callExpression: node,
+    };
+
+    function warnForMissingTypeArgument(jestCallExpressionInfo: JestCallExpressionInfo) {
+      // could look at the moduleName argument to see if is empty string
+      raiseDiagnostic({
+        /* 
+        note that a Suggestion category will fail
+        typescript.js
+        Debug.fail("Should never get an Info diagnostic on the command line.")
+      */
+        category: ts.DiagnosticCategory.Warning, // todo use options for category,
+        code: jestMissingTypeArgumentDiagnosticCode,
+        file: sourceFile,
+        start: jestCallExpressionInfo.start,
+        length: jestCallExpressionInfo.length,
+        messageText: `jest method ${jestCallExpressionInfo.methodName} is not providing a type argument for transformation to moduleName argument`,
+      });
+    }
+  };
+
+  return (node) => {
+    const jestTransformNodeInfo = shouldTransform(node);
+    if (jestTransformNodeInfo === undefined) {
       return node;
     }
 
     const moduleName = getModuleNameFromTypeArgument(
-      jestCallExpressionInfo.typeArgument,
-      `jest.${jestCallExpressionInfo.methodName}`,
+      jestTransformNodeInfo.typeNode,
+      jestTransformNodeInfo.methodName,
     );
 
     if (moduleName) {
-      node = updateJestMethodCallWithPath(ts, node, moduleName);
+      node = updateJestMethodCallWithModuleName(
+        ts,
+        jestTransformNodeInfo.callExpression,
+        moduleName,
+      );
     }
 
     return node;
