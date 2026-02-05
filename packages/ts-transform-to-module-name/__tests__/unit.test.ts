@@ -140,11 +140,11 @@ describe("getTypeNameOrModuleName", () => {
 
   function doTest(
     typeArg: string,
-    imports: string[] = [],
+    names: string[] = [],
     raiser: RaiseUnsupportedTypeNodeDiagnostic = () => {},
   ) {
     const importsInfo: ImportsInfo = new ImportsInfo();
-    importsInfo.add({ moduleName: "mod", imports });
+    importsInfo.add({ moduleName: "mod", names });
     const sourceFileTs = createSourceFileTs(`genericFn<${typeArg}>()`);
     const getModuleNameFromTypeNode = createGetModuleNameFromTypeNode(
       sourceFileTs,
