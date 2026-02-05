@@ -1,8 +1,9 @@
-import { ImportDeclaration, SourceFile } from "typescript";
+import { ImportDeclaration } from "typescript";
 import tryGetImportTypeNodeModuleName from "./tryGetImportTypeNodeModuleName";
 import { packageName } from "./package-name";
 import { getTransformToModuleNameName } from "./transformToModuleName-ast";
 import { TTypeScript } from "./ts";
+import { SourceFileTs } from "./common-types";
 
 export interface ImportInfo {
   moduleName: string;
@@ -69,10 +70,10 @@ function moduleExportsTransformToModuleName(
 }
 
 const getImportsInfo = (
-  ts: TTypeScript,
-  sourceFile: SourceFile,
+  sourceFileTs: SourceFileTs,
   moduleNameIfExportsTransformToModuleName: ModuleNameIfExportsTransformToModuleName,
 ): ImportsInfo => {
+  const { ts, sourceFile } = sourceFileTs;
   return sourceFile.statements.reduce((importsInfo, statement) => {
     if (ts.isImportDeclaration(statement)) {
       const moduleSpecifier = statement.moduleSpecifier;

@@ -22,21 +22,20 @@ const updateJestMethodCallWithPath = (
 export const jestMissingTypeArgumentDiagnosticCode = 1001;
 
 const jestTransformFactory: AdditionalTransformFactory = (
-  sourceFile,
-  context,
-  ts,
+  sourceFileContext,
   getModuleNameFromTypeArgument,
   isTransformToModuleNameCallExpression,
   raiseDiagnostic,
 ) => {
+  const { ts, sourceFile } = sourceFileContext;
   const warnForMissingTypeArgument = (jestCallExpressionInfo: JestCallExpressionInfo) => {
     // could look at the moduleName argument to see if is empty string
     raiseDiagnostic({
       /* 
-                note that a Suggestion category will fail
-                typescript.js
-                Debug.fail("Should never get an Info diagnostic on the command line.")
-              */
+        note that a Suggestion category will fail
+        typescript.js
+        Debug.fail("Should never get an Info diagnostic on the command line.")
+      */
       category: ts.DiagnosticCategory.Warning, // todo use options for category,
       code: jestMissingTypeArgumentDiagnosticCode,
       file: sourceFile,

@@ -4,23 +4,18 @@ import createGetModuleNameFromTypeNode, {
 } from "../src/createGetModuleNameFromTypeNode";
 import ts, { ExpressionStatement } from "typescript";
 
-const createSourceFile = (content: string) =>
-  ts.createSourceFile("", content, ts.ScriptTarget.ES2015);
+const createSourceFileTs = (content: string) => ({
+  sourceFile: ts.createSourceFile("", content, ts.ScriptTarget.ES2015),
+  ts,
+});
 
 describe("getImportsInfo", () => {
   const doGetImportsInfo = (content: string, moduleNameToFind?: string) => {
-    const sourceFile = createSourceFile(content);
-    return getImportsInfo(ts, sourceFile, moduleNameToFind);
+    const sourceFileTs = createSourceFileTs(content);
+    return getImportsInfo(sourceFileTs, moduleNameToFind);
   };
   describe("transformToModuleNameName", () => {
     it("should get its own", () => {
-      /* const sourceFile = ts.createSourceFile(
-        "",
-        "import { transformToModuleName} from 'ts-transform-to-module-name'",
-        ts.ScriptTarget.ES2015,
-      );
-      const importsInfo = getImportsInfo(ts, sourceFile, undefined);
-      expect(importsInfo.transformToModuleNameName).toEqual("transformToModuleName"); */
       transformToModuleNameTest(
         "import { transformToModuleName} from 'ts-transform-to-module-name'",
         "transformToModuleName",
@@ -50,13 +45,17 @@ describe("getImportsInfo", () => {
       );
     });
 
+    it("should not get from re-exporting if is not named transformToModuleName", () => {
+      transformToModuleNameTest("import { ttmn} from 'reexport'", undefined, "reexport");
+    });
+
     it("should get from re-exporting default export", () => {
       transformToModuleNameTest("import ttmn from 'reexport'", "ttmn", "reexport");
     });
 
     const transformToModuleNameTest = (
       content: string,
-      expected: string,
+      expected: string | undefined,
       moduleNameIfExportsTransformToModuleName?: string,
     ) => {
       const importsInfo = doGetImportsInfo(content, moduleNameIfExportsTransformToModuleName);
@@ -146,16 +145,15 @@ describe("getTypeNameOrModuleName", () => {
   ) {
     const importsInfo: ImportsInfo = new ImportsInfo();
     importsInfo.add({ moduleName: "mod", imports });
-    const sourceFile = createSourceFile(`genericFn<${typeArg}>()`);
+    const sourceFileTs = createSourceFileTs(`genericFn<${typeArg}>()`);
     const getModuleNameFromTypeNode = createGetModuleNameFromTypeNode(
-      ts,
+      sourceFileTs,
       importsInfo,
       raiser,
-      sourceFile,
     );
 
     const typeArgument = (
-      (sourceFile.statements[0] as ExpressionStatement).expression as ts.CallExpression
+      (sourceFileTs.sourceFile.statements[0] as ExpressionStatement).expression as ts.CallExpression
     ).typeArguments![0];
     return getModuleNameFromTypeNode(typeArgument, "member");
   }

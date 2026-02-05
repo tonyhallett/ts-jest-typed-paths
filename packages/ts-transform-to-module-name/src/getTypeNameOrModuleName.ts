@@ -1,6 +1,6 @@
-import { SourceFile, TypeNode } from "typescript";
-import { TTypeScript } from "./ts";
+import { TypeNode } from "typescript";
 import tryGetImportTypeNodeModuleName from "./tryGetImportTypeNodeModuleName";
+import { SourceFileTs } from "./common-types";
 
 interface TypeNameOrModuleNameBase {
   start: number;
@@ -20,10 +20,10 @@ export interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
 
 // the generic in transformToModuleName<T> or jest.mock<T>
 export function getTypeNameOrModuleName(
-  ts: TTypeScript,
+  sourceFileTs: SourceFileTs,
   typeNode: TypeNode,
-  sourceFile: SourceFile,
 ): TypeNameOrModuleName | UnsupportedTypeNameOrModuleNameBase {
+  const { ts, sourceFile } = sourceFileTs;
   const start = typeNode.getStart(sourceFile);
   const length = typeNode.getEnd() - start;
 

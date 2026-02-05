@@ -13,8 +13,7 @@ export function transformToModuleName<T>(): string {
 }
 ```
 
-If it ( and the TransformerFactory from transformToModuleNameFactory) is used, or if is re-exported and moduleNameIfExportsTransformToModuleName is supplied
-then it will be be replaced by the module name from the generic parameter.
+If it ( and the TransformerFactory from transformToModuleNameFactory) is used, or if is re-exported with name transformToModuleName or as a default export and moduleNameIfExportsTransformToModuleName is supplied then it will be be replaced by the module name from the generic parameter.
 
 As it is intended for use by other packages there are the parameters additionalTransformFactory and moduleNameIfExportsTransformToModuleName.
 
@@ -36,10 +35,13 @@ export type RaiseDiagnostic = (diagnostic: Diagnostic) => void;
 export type GetModuleNameFromTypeNode = (typeNode: TypeNode, member: string) => string | undefined;
 export type IsTransformToModuleNameCallExpression = (expression: Expression) => boolean;
 export type AdditionalTransform = (node: Node) => Node | undefined;
+export interface SourceFileContext {
+  ts: TTypeScript;
+  sourceFile: SourceFile;
+  transformationContext: TransformationContext;
+}
 export type AdditionalTransformFactory = (
-  sourceFile: SourceFile,
-  context: TransformationContext,
-  ts: TTypeScript,
+  sourceFileContext: SourceFileContext,
   getModuleNameFromTypeNode: GetModuleNameFromTypeNode,
   isTransformToModuleNameCallExpression: IsTransformToModuleNameCallExpression,
   raiseDiagnostic: RaiseDiagnostic,

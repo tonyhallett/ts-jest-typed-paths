@@ -1,18 +1,16 @@
-import { SourceFile } from "typescript";
-import { TTypeScript } from "./ts";
 import { RaiseDiagnostic } from "./AdditionalTransformFactory";
+import { SourceFileTs } from "./common-types";
 
 const unsupportedTypeArgumentDiagnosticCode = 10000;
 const getUnsupportedTypeArgumentDiagnostic = (
-  ts: TTypeScript,
-  sourceFile: SourceFile,
+  sourceFileTs: SourceFileTs,
   start: number,
   length: number,
   member: string,
 ) => {
   return {
-    file: sourceFile,
-    category: ts.DiagnosticCategory.Error,
+    file: sourceFileTs.sourceFile,
+    category: sourceFileTs.ts.DiagnosticCategory.Error,
     code: unsupportedTypeArgumentDiagnosticCode,
     messageText: `Unsupported usage of type argument for ${member}`,
     start,
@@ -28,15 +26,13 @@ export interface StartLength {
 export type RaiseUnsupportedTypeNodeDiagnostic = (startLength: StartLength, member: string) => void;
 
 function createRaiseUnsupportedTypeNodeDiagnostic(
-  sourceFile: SourceFile,
-  ts: TTypeScript,
+  sourceFileTs: SourceFileTs,
   raiseDiagnostic: RaiseDiagnostic,
 ): RaiseUnsupportedTypeNodeDiagnostic {
   return (startLength, member) => {
     raiseDiagnostic(
       getUnsupportedTypeArgumentDiagnostic(
-        ts,
-        sourceFile,
+        sourceFileTs,
         startLength.start,
         startLength.length,
         member,
