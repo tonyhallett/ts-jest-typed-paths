@@ -27,11 +27,15 @@ function addImportsFromImportDeclaration(
   moduleName: string,
   importsInfo: ImportsInfo,
 ) {
+  // need to do both - e.g import foo, { a, b as c } from "mod"
+
   const namedBindings = importDeclaration.importClause?.namedBindings;
   if (namedBindings) {
     if (ts.isNamedImports(namedBindings)) {
-      const imports = namedBindings.elements.map((element) => {
-        return element.name.getText();
+      // { a, b as c }
+      // b as c - propertyName is b, name is c
+      const imports = namedBindings.elements.map((importSpecifier) => {
+        return importSpecifier.name.text;
       });
       importsInfo.add({
         imports,
@@ -40,15 +44,16 @@ function addImportsFromImportDeclaration(
     } else {
       const namespaceImport = namedBindings;
       importsInfo.add({
-        imports: [namespaceImport.name.getText()],
+        imports: [namespaceImport.name.text],
         moduleName,
       });
     }
   }
 
+  // this is default export
   if (importDeclaration.importClause?.name) {
     importsInfo.add({
-      imports: [importDeclaration.importClause.name.getText()],
+      imports: [importDeclaration.importClause.name.text],
       moduleName,
     });
   }
@@ -63,7 +68,7 @@ function moduleExportsTransformToModuleName(
   return moduleName === packageName || moduleName === moduleNameIfExportsTransformToModuleName;
 }
 
-export const getImportsInfo = (
+const getImportsInfo = (
   ts: TTypeScript,
   sourceFile: SourceFile,
   moduleNameIfExportsTransformToModuleName: ModuleNameIfExportsTransformToModuleName,
@@ -94,3 +99,5 @@ export const getImportsInfo = (
     return importsInfo;
   }, new ImportsInfo());
 };
+
+export default getImportsInfo;

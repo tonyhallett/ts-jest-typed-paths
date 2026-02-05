@@ -7,7 +7,7 @@ import {
   RaiseDiagnostic,
 } from "./AdditionalTransformFactory";
 import createRaiseUnsupportedTypeNodeDiagnostic from "./createRaiseUnsupportedTypeNodeDiagnostic";
-import { type ImportsInfo, getImportsInfo } from "./getImportsInfo";
+import getImportsInfo, { type ImportsInfo } from "./getImportsInfo";
 import { isTransformToModuleNameCallExpression } from "./transformToModuleName-ast";
 import tryTransformToModuleName from "./tryTransformToModuleName";
 import createGetModuleNameFromTypeNode from "./createGetModuleNameFromTypeNode";

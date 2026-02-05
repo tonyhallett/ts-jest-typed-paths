@@ -21,29 +21,44 @@ export interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
 // the generic in transformToModuleName<T> or jest.mock<T>
 export function getTypeNameOrModuleName(
   ts: TTypeScript,
-  typeArgument: TypeNode,
+  typeNode: TypeNode,
 ): TypeNameOrModuleName | UnsupportedTypeNameOrModuleNameBase {
-  const start = typeArgument.getStart();
-  const length = typeArgument.getEnd() - start;
-  if (ts.isTypeReferenceNode(typeArgument)) {
+  const start = typeNode.getStart();
+  const length = typeNode.getEnd() - start;
+
+  // <T>
+  if (ts.isTypeReferenceNode(typeNode)) {
+    /*
+      interface TypeReferenceNode extends NodeWithTypeArguments {
+          readonly kind: SyntaxKind.TypeReference;
+          readonly typeName: EntityName;
+      }
+      type EntityName = Identifier | QualifiedName;
+      interface QualifiedName extends Node, FlowContainer {
+        readonly kind: SyntaxKind.QualifiedName;
+        readonly left: EntityName;
+        readonly right: Identifier;
+      }
+    */
     return {
-      typeNameOrModuleName: typeArgument.typeName.getText(),
+      typeNameOrModuleName: typeNode.typeName.getText(),
       isTypeName: true,
       start,
       length,
       supported: true,
     };
   }
-  if (ts.isTypeQueryNode(typeArgument)) {
+  // <typeof ...>
+  if (ts.isTypeQueryNode(typeNode)) {
     return {
-      typeNameOrModuleName: typeArgument.exprName.getText(),
+      typeNameOrModuleName: typeNode.exprName.getText(),
       isTypeName: true,
       start,
       length,
       supported: true,
     };
   }
-  const moduleName = getTypeAliasModuleName(ts, typeArgument);
+  const moduleName = getTypeAliasModuleName(ts, typeNode);
   if (moduleName !== undefined) {
     return {
       typeNameOrModuleName: moduleName,
@@ -53,6 +68,8 @@ export function getTypeNameOrModuleName(
       supported: true,
     };
   }
+
+  // if specify <{a:number}> is TypeLiteral
 
   return {
     start,

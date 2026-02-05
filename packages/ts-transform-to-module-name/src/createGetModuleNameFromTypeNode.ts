@@ -1,5 +1,5 @@
 import { GetModuleNameFromTypeNode } from "./AdditionalTransformFactory";
-import { ImportsInfo } from "./getImportsInfo";
+import type { ImportsInfo } from "./getImportsInfo";
 import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
 import { getModuleName } from "./getModuleName";
 import { TTypeScript } from "./ts";

@@ -1,4 +1,4 @@
-import { ImportsInfo } from "./getImportsInfo";
+import type { ImportsInfo } from "./getImportsInfo";
 import { TypeNameOrModuleName } from "./getTypeNameOrModuleName";
 
 export function getModuleName(
