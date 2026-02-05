@@ -110,7 +110,7 @@ describe("transformer", () => {
         it("should error with warning when jest method without type argument or transformToModuleName ", () => {
           tsErrorTest(
             `jest.mock("");`,
-            "jest.mock is not providing a type argument for transformation to moduleName argument",
+            "jest method mock is not providing a type argument for transformation to moduleName argument",
             [1001],
           );
         });

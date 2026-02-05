@@ -41,7 +41,7 @@ const jestTransformFactory: AdditionalTransformFactory = (
       file: sourceFile,
       start: jestCallExpressionInfo.start,
       length: jestCallExpressionInfo.length,
-      messageText: `jest.${jestCallExpressionInfo.methodName} is not providing a type argument for transformation to moduleName argument`,
+      messageText: `jest method ${jestCallExpressionInfo.methodName} is not providing a type argument for transformation to moduleName argument`,
     });
   };
 
