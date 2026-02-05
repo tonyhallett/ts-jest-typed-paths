@@ -1,6 +1,5 @@
 import type { TTypeScript } from "./ts";
 import { SourceFile, TransformationContext, Visitor, TransformerFactory } from "typescript";
-import isSourceFile from "./isSourceFile";
 import {
   AdditionalTransform,
   AdditionalTransformFactory,
@@ -32,6 +31,7 @@ export const transformToModuleNameFactory = (
       ts,
       importsInfo,
       raiseUnsupportedTypeNodeDiagnostic,
+      sourceFile,
     );
 
     let additionalTransform: AdditionalTransform = (node) => node;
@@ -51,32 +51,27 @@ export const transformToModuleNameFactory = (
       );
     }
 
-    function createVisitor(ctx: TransformationContext) {
-      const visitor: Visitor = (node) => {
-        const replaced = tryTransformToModuleName(
-          ts,
-          node,
-          importsInfo.transformToModuleNameName,
-          getModuleNameFromTypeNode,
-        );
-        if (replaced) {
-          return replaced;
-        }
+    const visitor: Visitor = (node) => {
+      const replaced = tryTransformToModuleName(
+        ts,
+        node,
+        importsInfo.transformToModuleNameName,
+        getModuleNameFromTypeNode,
+      );
+      if (replaced) {
+        return replaced;
+      }
 
-        const additionalTransformedNode = additionalTransform(node);
-        if (additionalTransformedNode === undefined) {
-          return undefined;
-        } else {
-          node = additionalTransformedNode;
-        }
+      const additionalTransformedNode = additionalTransform(node);
+      if (additionalTransformedNode === undefined) {
+        return undefined;
+      } else {
+        node = additionalTransformedNode;
+      }
 
-        return ts.visitEachChild(node, visitor, ctx);
-      };
-
-      return visitor;
-    }
-
-    return ts.visitNode(sourceFile, createVisitor(context), isSourceFile)!;
+      return ts.visitEachChild(node, visitor, context);
+    };
+    return ts.visitEachChild(sourceFile, visitor, context);
   };
 
   const transformerFactory: TransformerFactory<SourceFile> = (context) => {

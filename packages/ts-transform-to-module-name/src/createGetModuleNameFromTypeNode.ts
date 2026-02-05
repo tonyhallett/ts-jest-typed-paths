@@ -3,6 +3,7 @@ import type { ImportsInfo } from "./getImportsInfo";
 import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
 import { getModuleName } from "./getModuleName";
 import { TTypeScript } from "./ts";
+import { SourceFile } from "typescript";
 
 export interface StartLength {
   start: number;
@@ -15,18 +16,19 @@ function createGetModuleNameFromTypeNode(
   ts: TTypeScript,
   importsInfo: ImportsInfo,
   raiseUnsupportedTypeNodeDiagnostic: RaiseUnsupportedTypeNodeDiagnostic,
+  sourceFile: SourceFile,
 ): GetModuleNameFromTypeNode {
   return (typeNode, member) => {
-    const typeNameOrModuleName = getTypeNameOrModuleName(ts, typeNode);
-
+    const typeNameOrModuleName = getTypeNameOrModuleName(ts, typeNode, sourceFile);
+    const startLength = { start: typeNameOrModuleName.start, length: typeNameOrModuleName.length };
     if (!typeNameOrModuleName.supported) {
-      raiseUnsupportedTypeNodeDiagnostic(typeNameOrModuleName, member);
+      raiseUnsupportedTypeNodeDiagnostic(startLength, member);
     } else {
       const moduleName = getModuleName(typeNameOrModuleName, importsInfo);
       if (moduleName !== undefined) {
         return moduleName;
       } else {
-        raiseUnsupportedTypeNodeDiagnostic(typeNameOrModuleName, member);
+        raiseUnsupportedTypeNodeDiagnostic(startLength, member);
       }
     }
   };

@@ -16,6 +16,7 @@ export default defineConfig(
       "**/coverage/**",
       "**/scripts/*.js",
       "packages/ts-patch-integration-test/__tests__/*",
+      "demoImports/**",
     ],
   },
 );

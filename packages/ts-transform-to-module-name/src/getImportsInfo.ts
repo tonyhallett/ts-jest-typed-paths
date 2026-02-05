@@ -1,5 +1,5 @@
 import { ImportDeclaration, SourceFile } from "typescript";
-import getTypeAliasModuleName from "./getTypeAliasModuleName";
+import tryGetImportTypeNodeModuleName from "./tryGetImportTypeNodeModuleName";
 import { packageName } from "./package-name";
 import { getTransformToModuleNameName } from "./transformToModuleName-ast";
 import { TTypeScript } from "./ts";
@@ -88,12 +88,21 @@ const getImportsInfo = (
         }
       }
     } else if (ts.isTypeAliasDeclaration(statement)) {
-      const moduleName = getTypeAliasModuleName(ts, statement.type);
+      const moduleName = tryGetImportTypeNodeModuleName(ts, statement.type);
       if (moduleName !== undefined) {
         importsInfo.add({
-          imports: [statement.name.getText()],
+          imports: [statement.name.text],
           moduleName,
         });
+      }
+    } else if (ts.isImportEqualsDeclaration(statement)) {
+      const moduleReference = statement.moduleReference;
+      if (ts.isExternalModuleReference(moduleReference)) {
+        const expression = moduleReference.expression;
+        if (ts.isStringLiteral(expression)) {
+          const moduleName = expression.text;
+          importsInfo.add({ imports: [statement.name.text], moduleName });
+        }
       }
     }
     return importsInfo;

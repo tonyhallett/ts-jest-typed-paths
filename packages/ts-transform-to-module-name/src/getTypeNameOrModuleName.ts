@@ -1,6 +1,6 @@
-import { TypeNode } from "typescript";
+import { SourceFile, TypeNode } from "typescript";
 import { TTypeScript } from "./ts";
-import getTypeAliasModuleName from "./getTypeAliasModuleName";
+import tryGetImportTypeNodeModuleName from "./tryGetImportTypeNodeModuleName";
 
 interface TypeNameOrModuleNameBase {
   start: number;
@@ -22,8 +22,9 @@ export interface TypeNameOrModuleName extends TypeNameOrModuleNameBase {
 export function getTypeNameOrModuleName(
   ts: TTypeScript,
   typeNode: TypeNode,
+  sourceFile: SourceFile,
 ): TypeNameOrModuleName | UnsupportedTypeNameOrModuleNameBase {
-  const start = typeNode.getStart();
+  const start = typeNode.getStart(sourceFile);
   const length = typeNode.getEnd() - start;
 
   // <T>
@@ -40,8 +41,12 @@ export function getTypeNameOrModuleName(
         readonly right: Identifier;
       }
     */
+    const identifier = ts.isIdentifier(typeNode.typeName)
+      ? typeNode.typeName
+      : typeNode.typeName.left;
+
     return {
-      typeNameOrModuleName: typeNode.typeName.getText(),
+      typeNameOrModuleName: identifier.getText(sourceFile),
       isTypeName: true,
       start,
       length,
@@ -51,14 +56,14 @@ export function getTypeNameOrModuleName(
   // <typeof ...>
   if (ts.isTypeQueryNode(typeNode)) {
     return {
-      typeNameOrModuleName: typeNode.exprName.getText(),
+      typeNameOrModuleName: typeNode.exprName.getText(sourceFile),
       isTypeName: true,
       start,
       length,
       supported: true,
     };
   }
-  const moduleName = getTypeAliasModuleName(ts, typeNode);
+  const moduleName = tryGetImportTypeNodeModuleName(ts, typeNode);
   if (moduleName !== undefined) {
     return {
       typeNameOrModuleName: moduleName,
