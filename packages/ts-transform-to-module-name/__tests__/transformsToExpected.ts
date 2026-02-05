@@ -10,7 +10,7 @@ function transformsToExpected(
 }
 
 function createSourceFile(content: string) {
-  return ts.createSourceFile("", content, ts.ScriptTarget.ES2015);
+  return ts.createSourceFile("test.ts", content, ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
 }
 
 function printsEqual(transformed: SourceFile, expected: SourceFile) {
