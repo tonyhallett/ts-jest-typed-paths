@@ -1,7 +1,8 @@
 {
   "files": [],
   "compilerOptions": {
-    "isolatedModules": true
+    "isolatedModules": true,
+    "esModuleInterop": true
   },
   "references": [{ "path": "../ts-jest-typed-module-name" }, { "path": "../test-utils" }]
 }

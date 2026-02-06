@@ -5,6 +5,8 @@ import { mkdtempSync } from "fs";
 import { spawnSync } from "child_process";
 import installVersions from "./npm-install-versions";
 import * as semver from "semver";
+import transformerFactoryExpectedTransform from "./transformer-factory-expected-transform";
+import { transformStringToJsAsync } from "./ts-morph-transform";
 
 export interface TempDependentProject {
   testDirectory: string;
@@ -100,3 +102,5 @@ export function getMinimumTypeScriptVersion(packageName: string) {
   const minVersion = semver.minVersion(typescriptVersion)!;
   return minVersion.version;
 }
+
+export { transformerFactoryExpectedTransform, transformStringToJsAsync };

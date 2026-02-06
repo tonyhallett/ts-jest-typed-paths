@@ -11,7 +11,7 @@ import getJestCallExpressionInfo, {
 import updateJestMethodCallWithModuleName from "./updateJestMethodCallWithModuleName";
 
 // todo
-export const jestMissingTypeArgumentDiagnosticCode = 1001;
+const jestMissingTypeArgumentDiagnosticCode = 1001;
 
 interface JestTransformNodeInfo {
   typeNode: TypeNode;

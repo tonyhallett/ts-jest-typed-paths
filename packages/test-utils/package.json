@@ -4,5 +4,8 @@
   "description": "helper for common testing",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@ts-morph/bootstrap": "^0.28.1"
+  }
 }

@@ -12,6 +12,18 @@
   "peerDependencies": {
     "typescript": ">=5.0.2 <6"
   },
+  "devDependencies": {
+    "@types/jest": "^29.5.2",
+    "typescript": "^5.6.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "test-utils": "*"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.refs.json",
+    "pretest": "npm run build",
+    "test": "jest"
+  },
   "keywords": [],
   "author": "Tony Hallett",
   "license": "ISC",

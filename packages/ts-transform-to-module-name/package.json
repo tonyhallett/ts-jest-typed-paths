@@ -7,13 +7,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b tsconfig.refs.json",
     "pretest": "npm run build",
     "test": "jest"
   },
   "devDependencies": {
-    "@ts-morph/bootstrap": "^0.28.1",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "test-utils": "*"
   },
   "peerDependencies": {
     "typescript": ">=5.0.2 <6"
