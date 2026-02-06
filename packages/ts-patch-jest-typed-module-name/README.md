@@ -61,14 +61,14 @@ describe("transformer", () => {
 import toTest from "./to-test";
 import dependency from "./dependency";
 import ttmn from "ts-patch-jest-typed-module-name";
-jest.mock("./dependency");
+jest.mock<typeof dependency>("./dependency");
 describe("transformer", () => {
   it("should transform jest.mock", () => {
     toTest();
     expect(dependency).toHaveBeenCalled();
   });
   it("should transformToModuleName", () => {
-    expect(ttmn()).toBe("./dependency");
+    expect("./dependency").toBe("./dependency");
   });
 });
 ```

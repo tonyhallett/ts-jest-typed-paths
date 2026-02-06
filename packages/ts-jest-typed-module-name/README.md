@@ -61,7 +61,7 @@ describe("transformer", () => {
 import toTest from "../src/to-test";
 import dependency from "../src/dependency";
 import ttmn from "ts-jest-typed-module-name";
-jest.mock("../src/dependency");
+jest.mock<typeof dependency>("../src/dependency");
 describe("transformer", () => {
   it("should transform jest.mock", () => {
     toTest();

@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "prettier": "^3.8.1",
-    "ts-jest-typed-module-name": "*",
+    "jest-typed-module-name": "*",
     "ts-node": "^10.9.2"
   }
 }

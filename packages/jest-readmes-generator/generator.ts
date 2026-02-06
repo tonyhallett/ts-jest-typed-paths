@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import transpileTest from "./transpile";
+import tranformTest from "./transform-test";
 import prettier from "prettier";
 
 export const baseReadme = getBaseReadme();
@@ -10,7 +10,7 @@ export async function generateReadmeForPackage(packageName: string) {
   const { packageDirectory, readmePath } = getReadmePathInfo(packageName);
   let readme =
     generatePrefix(packageName, baseReadme) +
-    getExampleUsage(packageDirectory) +
+    getExampleUsage(packageDirectory, packageName) +
     readConfig(packageDirectory);
 
   readme = await formatMarkdown(readme, readmePath);
@@ -31,14 +31,14 @@ export function getReadmePathInfo(packageName: string) {
   };
 }
 
-function getExampleUsage(packageDirectory: string) {
+function getExampleUsage(packageDirectory: string, packageName: string) {
   const examplePath = readPackageJsonJestReadmeTestPath(packageDirectory);
   const exampleFullPath = path.resolve(packageDirectory, examplePath);
   if (!fs.existsSync(exampleFullPath)) {
     throw new Error(`Example file does not exist: ${exampleFullPath}`);
   }
 
-  const transpiled = transpileTest(exampleFullPath);
+  const transpiled = tranformTest(exampleFullPath, packageName);
 
   const examplePathTrimmed = examplePath.replace(/^\.\.\//, "");
   const examplePackageName = examplePathTrimmed.split("/")[0];
