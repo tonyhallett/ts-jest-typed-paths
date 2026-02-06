@@ -5,3 +5,4 @@ dist/
 *.tgz
 ts-versions/
 packages/ts-patch-integration-test/__tests__/*
+coverage/

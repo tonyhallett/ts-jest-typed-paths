@@ -22,7 +22,9 @@
   "scripts": {
     "build": "tsc -b tsconfig.refs.json",
     "pretest": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "pretest:coverage": "npm run build",
+    "test-coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "Tony Hallett",
