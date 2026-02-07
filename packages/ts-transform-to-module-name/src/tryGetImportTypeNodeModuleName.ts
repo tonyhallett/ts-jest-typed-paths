@@ -1,15 +1,13 @@
 import { TypeNode } from "typescript";
 import { TTypeScript } from "./ts";
 
-const replaceQuotes = (input: string) => input.replace("'", "").replace('"', "");
-
 function tryGetImportTypeNodeModuleName(ts: TTypeScript, type: TypeNode) {
   if (
     ts.isImportTypeNode(type) &&
     ts.isLiteralTypeNode(type.argument) &&
     ts.isStringLiteral(type.argument.literal)
   ) {
-    return replaceQuotes(type.argument.literal.text);
+    return type.argument.literal.text;
   }
 }
 
