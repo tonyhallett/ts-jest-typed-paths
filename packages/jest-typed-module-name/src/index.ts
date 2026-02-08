@@ -1,7 +1,10 @@
 import type { TTypeScript } from "./ts";
-import type { CallExpression, Diagnostic, Node, TypeNode } from "typescript";
+import type { CallExpression, Node, TypeNode } from "typescript";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for jsdoc
+import type { TransformerFactory } from "typescript";
 import {
   type AdditionalTransformFactory,
+  type RaiseDiagnostic,
   transformToModuleNameFactory,
   transformToModuleName,
 } from "ts-transform-to-module-name";
@@ -18,6 +21,8 @@ interface JestTransformNodeInfo {
   methodName: string;
   callExpression: CallExpression;
 }
+
+// todo createJestTransformerFactory could have a predicate to determine if the transform is necessary.
 
 const jestTransformFactory: AdditionalTransformFactory = (
   sourceFileContext,
@@ -99,15 +104,26 @@ const jestTransformFactory: AdditionalTransformFactory = (
   };
 };
 
-export const createJestFactory = (moduleNameIfExportsTransformToModuleName?: string) => {
-  return (ts: TTypeScript, raiseDiagnostic: (diagnostic: Diagnostic) => void) => {
-    return transformToModuleNameFactory(
-      ts,
-      raiseDiagnostic,
-      jestTransformFactory,
-      moduleNameIfExportsTransformToModuleName,
-    );
-  };
+/**
+ * A factory for creating a {@link TransformerFactory | `TransformerFactory<SourceFile>`} ( e.g for use with ts.transform, ts.transpileModule, ts.Program.emit, ts-patch) ( e.g for use with ts.transform, ts.transpileModule, ts.Program.emit, ts-patch, ts-jest) that transforms jest 'moduleName' parameters to module name obtained from the type argument.
+ * Also replaces calls to marker {@link transformToModuleName} to the module name of the type argument of transformToModuleName. Use transformToModuleName for jest 'moduleName' methods that do not have a type argument or for other transformations to module name from type argument outside of jest.
+ *
+ * @param ts Specific typescript namespace to be used
+ * @param raiseDiagnostic Host provided function to raise diagnostics, used for unsupported type nodes in transformToModuleName type argument and for jest specifics too.
+ * @param moduleNameExportingTransformToModuleName If another module exports a named transformToModuleName or has a default export of transformToModuleName shape, the name of that module.
+ */
+
+export const createJestTransformerFactory = (
+  ts: TTypeScript,
+  raiseDiagnostic: RaiseDiagnostic,
+  moduleNameExportingTransformToModuleName?: string,
+) => {
+  return transformToModuleNameFactory(
+    ts,
+    raiseDiagnostic,
+    jestTransformFactory,
+    moduleNameExportingTransformToModuleName,
+  );
 };
 
 export { transformToModuleName };

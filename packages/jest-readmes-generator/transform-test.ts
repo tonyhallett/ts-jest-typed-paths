@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 import * as fs from "fs";
-import { createJestFactory } from "jest-typed-module-name";
+import { createJestTransformerFactory } from "jest-typed-module-name";
 
 function tranformTest(testPath: string, moduleName: string) {
   const content = fs.readFileSync(testPath, "utf8");
@@ -11,7 +11,11 @@ function tranformTest(testPath: string, moduleName: string) {
     true,
     ts.ScriptKind.TS,
   );
-  const transformerFactory = createJestFactory(moduleName)(ts, (diag) => console.error(diag));
+  const transformerFactory = createJestTransformerFactory(
+    ts,
+    (diag) => console.error(diag),
+    moduleName,
+  );
   const result = ts.transform(sourceFile, [transformerFactory]);
   const printer = ts.createPrinter();
   return printer.printFile(result.transformed[0]);

@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { GetModuleNameFromTypeNode } from "./AdditionalTransformFactory";
+import { ModuleNameFromTypeNode } from "./AdditionalTransformFactory";
 import { tryGetTransformToModuleNameTypeNode } from "./transformToModuleName-ast";
 import { TTypeScript } from "./ts";
 
@@ -7,7 +7,7 @@ const tryTransformToModuleName = (
   ts: TTypeScript,
   node: ts.Node,
   transformToModuleNameName: string | undefined,
-  getModuleNameFromTypeNode: GetModuleNameFromTypeNode,
+  moduleNameFromTypeNode: ModuleNameFromTypeNode,
 ): ts.StringLiteral | undefined => {
   const transformToModuleNameTypeNode = tryGetTransformToModuleNameTypeNode(
     ts,
@@ -15,7 +15,7 @@ const tryTransformToModuleName = (
     transformToModuleNameName,
   );
   if (transformToModuleNameTypeNode) {
-    const moduleName = getModuleNameFromTypeNode(
+    const moduleName = moduleNameFromTypeNode(
       transformToModuleNameTypeNode,
       transformToModuleNameName!,
     );

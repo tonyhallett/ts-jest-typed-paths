@@ -1,4 +1,4 @@
-import { GetModuleNameFromTypeNode } from "./AdditionalTransformFactory";
+import { ModuleNameFromTypeNode } from "./AdditionalTransformFactory";
 import type { ImportsInfo } from "./getImportsInfo";
 import { getTypeNameOrModuleName } from "./getTypeNameOrModuleName";
 import { getModuleName } from "./getModuleName";
@@ -11,11 +11,11 @@ export interface StartLength {
 
 export type RaiseUnsupportedTypeNodeDiagnostic = (startLength: StartLength, member: string) => void;
 
-function createGetModuleNameFromTypeNode(
+function createModuleNameFromTypeNode(
   sourceFileTs: SourceFileTs,
   importsInfo: ImportsInfo,
   raiseUnsupportedTypeNodeDiagnostic: RaiseUnsupportedTypeNodeDiagnostic,
-): GetModuleNameFromTypeNode {
+): ModuleNameFromTypeNode {
   return (typeNode, member) => {
     const typeNameOrModuleName = getTypeNameOrModuleName(sourceFileTs, typeNode);
     const startLength = { start: typeNameOrModuleName.start, length: typeNameOrModuleName.length };
@@ -32,4 +32,4 @@ function createGetModuleNameFromTypeNode(
   };
 }
 
-export default createGetModuleNameFromTypeNode;
+export default createModuleNameFromTypeNode;

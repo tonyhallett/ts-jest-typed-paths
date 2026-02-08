@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { createJestFactory } from "jest-typed-module-name";
+import { createJestTransformerFactory } from "jest-typed-module-name";
 import { transformerFactoryExpectedTransform } from "test-utils";
 
 describe("jest-typed-module-name", () => {
@@ -7,7 +7,7 @@ describe("jest-typed-module-name", () => {
   let transformerFactory: ts.TransformerFactory<ts.SourceFile>;
   beforeEach(() => {
     raiseDiagnostic.mockClear();
-    transformerFactory = createJestFactory("implementation")(ts, raiseDiagnostic);
+    transformerFactory = createJestTransformerFactory(ts, raiseDiagnostic, "implementation");
   });
 
   // from jestPropertyIdentifiers.ts

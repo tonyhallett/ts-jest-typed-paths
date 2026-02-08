@@ -1,13 +1,13 @@
 import { SourceFile } from "typescript";
 import {
-  AdditionalTransform,
+  Transform,
   AdditionalTransformFactory,
   RaiseDiagnostic,
   SourceFileContext,
 } from "./AdditionalTransformFactory";
 import { ImportsInfo } from "./getImportsInfo";
 import { isTransformToModuleNameCallExpression } from "./transformToModuleName-ast";
-import createGetModuleNameFromTypeNodeWithDiagnostics from "./createGetModuleNameFromTypeNodeWithDiagnostics";
+import createModuleNameFromTypeNodeWithDiagnostics from "./createModuleNameFromTypeNodeWithDiagnostics";
 import visit from "./visit";
 
 const transform = (
@@ -16,17 +16,17 @@ const transform = (
   additionalTransformFactory: AdditionalTransformFactory | undefined,
   importsInfo: ImportsInfo,
 ): SourceFile => {
-  const getModuleNameFromTypeNode = createGetModuleNameFromTypeNodeWithDiagnostics(
+  const moduleNameFromTypeNode = createModuleNameFromTypeNodeWithDiagnostics(
     context,
     raiseDiagnostic,
     importsInfo,
   );
 
-  let additionalTransform: AdditionalTransform = (node) => node;
+  let additionalTransform: Transform | undefined = undefined;
   if (additionalTransformFactory) {
     additionalTransform = additionalTransformFactory(
       context,
-      getModuleNameFromTypeNode,
+      moduleNameFromTypeNode,
       (expression) =>
         isTransformToModuleNameCallExpression(
           context.ts,
@@ -37,11 +37,15 @@ const transform = (
     );
   }
 
+  if (additionalTransform === undefined && importsInfo.transformToModuleNameName === undefined) {
+    return context.sourceFile;
+  }
+
   return visit(
     context,
     importsInfo.transformToModuleNameName,
-    getModuleNameFromTypeNode,
-    additionalTransform,
+    moduleNameFromTypeNode,
+    additionalTransform ?? ((node) => node),
   );
 };
 

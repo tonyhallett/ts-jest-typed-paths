@@ -10,12 +10,14 @@ For jest methods with moduleName parameter and no generic parameter the marker f
 [ts-jest-typed-module-name](../ts-jest-typed-module-name/README.md)
 [ts-patch-jest-typed-module-name](../ts-patch-jest-typed-module-name/README.md)
 
-The `moduleNameIfExportsTransformToModuleName` is if your package re-exports `transformToModuleName` from ts-transform-to-module-name as does ts-jest-typed-module-name and ts-patch-jest-typed-module-name.
+The `moduleNameExportingTransformToModuleName` is if your package re-exports `transformToModuleName` from jest-typed-module-name as does ts-jest-typed-module-name and ts-patch-jest-typed-module-name.
 
 ```ts
-createJestFactory: (moduleNameIfExportsTransformToModuleName?: string) =>
-  (ts: typeof ts, raiseDiagnostic: (diagnostic: Diagnostic) => void) =>
-    TransformerFactory<SourceFile>;
+export const createJestTransformerFactory = (
+  ts: TTypeScript,
+  raiseDiagnostic: RaiseDiagnostic,
+  moduleNameExportingTransformToModuleName?: string,
+) => TransformerFactory<SourceFile>;
 
 function transformToModuleName<T>(): string;
 ```

@@ -1,23 +1,23 @@
-import { GetModuleNameFromTypeNode, RaiseDiagnostic } from "./AdditionalTransformFactory";
+import { ModuleNameFromTypeNode, RaiseDiagnostic } from "./AdditionalTransformFactory";
 import createRaiseUnsupportedTypeNodeDiagnostic from "./createRaiseUnsupportedTypeNodeDiagnostic";
 import { ImportsInfo } from "./getImportsInfo";
-import createGetModuleNameFromTypeNode from "./createGetModuleNameFromTypeNode";
+import createModuleNameFromTypeNode from "./createModuleNameFromTypeNode";
 import { SourceFileTs } from "./common-types";
 
-function createGetModuleNameFromTypeNodeWithDiagnostics(
+function createModuleNameFromTypeNodeWithDiagnostics(
   sourceFileTs: SourceFileTs,
   raiseDiagnostic: RaiseDiagnostic,
   importsInfo: ImportsInfo,
-): GetModuleNameFromTypeNode {
+): ModuleNameFromTypeNode {
   const raiseUnsupportedTypeNodeDiagnostic = createRaiseUnsupportedTypeNodeDiagnostic(
     sourceFileTs,
     raiseDiagnostic,
   );
-  return createGetModuleNameFromTypeNode(
+  return createModuleNameFromTypeNode(
     sourceFileTs,
     importsInfo,
     raiseUnsupportedTypeNodeDiagnostic,
   );
 }
 
-export default createGetModuleNameFromTypeNodeWithDiagnostics;
+export default createModuleNameFromTypeNodeWithDiagnostics;

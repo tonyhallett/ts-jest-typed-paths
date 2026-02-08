@@ -1,16 +1,12 @@
 import { Visitor } from "typescript";
-import {
-  AdditionalTransform,
-  GetModuleNameFromTypeNode,
-  SourceFileContext,
-} from "./AdditionalTransformFactory";
+import { Transform, ModuleNameFromTypeNode, SourceFileContext } from "./AdditionalTransformFactory";
 import tryTransformToModuleName from "./tryTransformToModuleName";
 
 function visit(
   context: SourceFileContext,
   transformToModuleNameName: string | undefined,
-  getModuleNameFromTypeNode: GetModuleNameFromTypeNode,
-  additionalTransform: AdditionalTransform,
+  moduleNameFromTypeNode: ModuleNameFromTypeNode,
+  additionalTransform: Transform,
 ) {
   const { ts, sourceFile, transformationContext } = context;
   const visitor: Visitor = (node) => {
@@ -18,7 +14,7 @@ function visit(
       ts,
       node,
       transformToModuleNameName,
-      getModuleNameFromTypeNode,
+      moduleNameFromTypeNode,
     );
     if (replaced) {
       return replaced;

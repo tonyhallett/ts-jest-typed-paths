@@ -95,14 +95,14 @@ describe("testing with ts.transform", () => {
       const transformerFactory = transformToModuleNameFactory(
         typescript,
         jest.fn(),
-        ({ sourceFile, ts }, getModuleNameFromTypeNode, isTransformToModuleName) => {
+        ({ sourceFile, ts }, moduleNameFromTypeNode, isTransformToModuleName) => {
           return (node) => {
             if (
               ts.isCallExpression(node) &&
               node.expression.getText(sourceFile) === "genericFunction"
             ) {
               isTransformToModuleNameResults.push(isTransformToModuleName(node.arguments[0]));
-              moduleNamesFromTypeNode.push(getModuleNameFromTypeNode(node.typeArguments![0], ""));
+              moduleNamesFromTypeNode.push(moduleNameFromTypeNode(node.typeArguments![0], ""));
             }
             return node;
           };

@@ -1,7 +1,7 @@
 import getImportsInfo, { ImportsInfo } from "../src/getImportsInfo";
-import createGetModuleNameFromTypeNode, {
+import createModuleNameFromTypeNode, {
   RaiseUnsupportedTypeNodeDiagnostic,
-} from "../src/createGetModuleNameFromTypeNode";
+} from "../src/createModuleNameFromTypeNode";
 import ts, { ExpressionStatement } from "typescript";
 
 const createSourceFileTs = (content: string) => ({
@@ -146,15 +146,11 @@ describe("getTypeNameOrModuleName", () => {
     const importsInfo: ImportsInfo = new ImportsInfo();
     importsInfo.add({ moduleName: "mod", names });
     const sourceFileTs = createSourceFileTs(`genericFn<${typeArg}>()`);
-    const getModuleNameFromTypeNode = createGetModuleNameFromTypeNode(
-      sourceFileTs,
-      importsInfo,
-      raiser,
-    );
+    const moduleNameFromTypeNode = createModuleNameFromTypeNode(sourceFileTs, importsInfo, raiser);
 
     const typeArgument = (
       (sourceFileTs.sourceFile.statements[0] as ExpressionStatement).expression as ts.CallExpression
     ).typeArguments![0];
-    return getModuleNameFromTypeNode(typeArgument, "member");
+    return moduleNameFromTypeNode(typeArgument, "member");
   }
 });
