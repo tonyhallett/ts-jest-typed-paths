@@ -77,7 +77,7 @@ describe("transformer", () => {
 
 [ts-jest astTransformers](https://kulshekhar.github.io/ts-jest/docs/getting-started/options/astTransformers)
 
-** example **
+**example**
 
 [ts-jest-integration-test jest.config.ts](../ts-jest-integration-test/jest.config.ts)
 

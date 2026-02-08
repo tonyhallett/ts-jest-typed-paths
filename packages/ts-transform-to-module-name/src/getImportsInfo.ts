@@ -77,7 +77,7 @@ const getImportsInfo = (
   return sourceFile.statements.reduce((importsInfo, statement) => {
     if (ts.isImportDeclaration(statement)) {
       const moduleSpecifier = statement.moduleSpecifier;
-      // /** If this is not a StringLiteral it will be a grammar error. */
+      // from typescript - If this is not a StringLiteral it will be a grammar error.
       if (ts.isStringLiteral(moduleSpecifier)) {
         const moduleName = moduleSpecifier.text;
         if (
