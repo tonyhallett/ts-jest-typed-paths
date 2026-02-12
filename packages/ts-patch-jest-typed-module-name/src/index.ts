@@ -1,2 +1,1 @@
-import { transformToModuleName } from "jest-typed-module-name";
-export default transformToModuleName;
+export { transformToModuleName as default } from "jest-typed-module-name";

@@ -1,6 +1,5 @@
 import type { AstTransformerDesc, TsCompilerInstance } from "ts-jest";
 import { createJestTransformerFactory } from "jest-typed-module-name";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for jsdoc
 import type { TransformerFactory } from "typescript";
 
 // currently not using the opts parameter of the factory function

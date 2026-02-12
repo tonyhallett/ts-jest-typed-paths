@@ -1,14 +1,13 @@
 import type { TTypeScript } from "./ts";
-import { SourceFile, TransformerFactory } from "typescript";
-import {
+import type { SourceFile, TransformerFactory } from "typescript";
+import type {
   AdditionalTransformFactory,
   RaiseDiagnostic,
   SourceFileContext,
 } from "./AdditionalTransformFactory";
+import type transformToModuleName from "./transformToModuleName";
 import getImportsInfo from "./getImportsInfo";
 import transform from "./transform";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for jsdoc
-import type transformToModuleName from "./transformToModuleName";
 
 /**
  * A factory for creating a {@link TransformerFactory | `TransformerFactory<SourceFile>`} ( e.g for use with ts.transform, ts.transpileModule, ts.Program.emit ts-patch)

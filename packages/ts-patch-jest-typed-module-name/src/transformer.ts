@@ -1,7 +1,6 @@
 import type { ProgramPattern } from "ts-patch";
-import { createJestTransformerFactory } from "jest-typed-module-name";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for jsdoc
 import type { TransformerFactory } from "typescript";
+import { createJestTransformerFactory } from "jest-typed-module-name";
 
 /**
   Factory function required by ts-patch to create the {@link TransformerFactory | `TransformerFactory<SourceFile>`}

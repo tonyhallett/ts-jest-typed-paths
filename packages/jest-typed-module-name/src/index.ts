@@ -1,12 +1,10 @@
 import type { TTypeScript } from "./ts";
-import type { CallExpression, Node, TypeNode } from "typescript";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for jsdoc
-import type { TransformerFactory } from "typescript";
+import type { CallExpression, Node, TypeNode, TransformerFactory } from "typescript";
 import {
   type AdditionalTransformFactory,
   type RaiseDiagnostic,
-  transformToModuleNameFactory,
   transformToModuleName,
+  transformToModuleNameFactory,
 } from "ts-transform-to-module-name";
 import getJestCallExpressionInfo, {
   type JestCallExpressionInfo,

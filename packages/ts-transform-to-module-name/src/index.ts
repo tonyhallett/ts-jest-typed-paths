@@ -1,5 +1,3 @@
-import transformToModuleName from "./transformToModuleName";
-import transformToModuleNameFactory from "./transformToModuleNameFactory";
-import type { AdditionalTransformFactory, RaiseDiagnostic } from "./AdditionalTransformFactory";
-export { transformToModuleNameFactory, transformToModuleName };
-export type { AdditionalTransformFactory, RaiseDiagnostic };
+export { default as transformToModuleName } from "./transformToModuleName";
+export { default as transformToModuleNameFactory } from "./transformToModuleNameFactory";
+export type { AdditionalTransformFactory, RaiseDiagnostic } from "./AdditionalTransformFactory";

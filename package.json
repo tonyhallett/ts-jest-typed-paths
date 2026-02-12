@@ -4,9 +4,9 @@
   "description": "transforming generic parameter imported type to string path",
   "private": true,
   "scripts": {
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:debug": "eslint . --ext .ts,.tsx --debug",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "lint": "eslint .",
+    "lint:debug": "eslint . --debug --concurrency off",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write '**/*.{ts,tsx,js,json,md}'",
     "format:check": "prettier --check '**/*.{ts,tsx,js,json,md}'",
     "build-release-clean": "tsc -b tsconfig.release.json --clean",

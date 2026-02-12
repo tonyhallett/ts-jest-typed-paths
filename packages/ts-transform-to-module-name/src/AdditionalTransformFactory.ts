@@ -1,16 +1,14 @@
-import {
-  type Diagnostic,
-  type Expression,
-  type SourceFile,
-  type TransformationContext,
-  type TypeNode,
-  type Node,
+import type {
+  Diagnostic,
+  Expression,
+  SourceFile,
+  TransformationContext,
+  TypeNode,
+  Node,
+  TransformerFactory,
 } from "typescript";
 import { TTypeScript } from "./ts";
-/* eslint-disable @typescript-eslint/no-unused-vars -- used for jsdoc */
-import { type TransformerFactory } from "typescript";
 import type transformToModuleNameFactory from "./transformToModuleNameFactory";
-/* eslint-enable @typescript-eslint/no-unused-vars -- used for jsdoc */
 
 export type RaiseDiagnostic = (diagnostic: Diagnostic) => void;
 
